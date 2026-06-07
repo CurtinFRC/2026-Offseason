@@ -7,6 +7,7 @@
 
 package org.curtinfrc.frc2026;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -30,6 +31,9 @@ import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.GameState;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -48,6 +52,7 @@ public class Robot extends LoggedRobot {
   private Drive drive;
   private Shooter shooter;
   private IntakeArm intakeArm;
+  private HopperIndexer hopperIndexer;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -105,6 +110,12 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOComp());
           intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOComp(
+                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                  new IndexerRollerIOComp(
+                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
         }
         case SIM -> {
           drive =
@@ -116,6 +127,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOSim());
           intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
+          hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
         }
       }
     } else {
@@ -139,6 +151,7 @@ public class Robot extends LoggedRobot {
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
+    controller.a().whileTrue(hopperIndexer.setVoltage(12));
   }
 
   /** This function is called periodically during all modes. */
