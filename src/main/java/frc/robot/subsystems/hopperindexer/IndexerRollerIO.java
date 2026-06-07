@@ -1,8 +1,8 @@
-package frc.robot.subsystems.indexer;
+package frc.robot.subsystems.hopperindexer;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface IndexerIO {
+public interface IndexerRollerIO {
   @AutoLog
   public static class IndexerIOInputs {
     public double positionRotations;
