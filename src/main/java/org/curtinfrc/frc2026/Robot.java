@@ -7,6 +7,17 @@
 
 package org.curtinfrc.frc2026;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.XboxController;
+import org.curtinfrc.frc2026.subsystems.drive.Drive;
+import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
+import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
+import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
+import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
+import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
+import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -21,6 +32,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
+  private Drive drive;
+
+  private final XboxController controller = new XboxController(0);
+  private final Alert controllerDisconnected =
+      new Alert("Driver controller disconnected!", AlertType.kError);
+
   public Robot() {
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -37,7 +54,7 @@ public class Robot extends LoggedRobot {
         });
 
     // Set up data receivers & replay source
-    switch (Constants.currentMode) {
+    switch (Constants.getMode()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
@@ -60,11 +77,51 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
+
+    if (Constants.getMode() != Constants.Mode.REPLAY) {
+      switch (Constants.robotType) {
+        case COMP -> {
+          drive =
+              new Drive(
+                  new GyroIOPigeon2(),
+                  new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                  new ModuleIOTalonFX(TunerConstants.FrontRight),
+                  new ModuleIOTalonFX(TunerConstants.BackLeft),
+                  new ModuleIOTalonFX(TunerConstants.BackRight));
+        }
+        case SIM -> {
+          drive =
+              new Drive(
+                  new GyroIO() {},
+                  new ModuleIOSim(TunerConstants.FrontLeft),
+                  new ModuleIOSim(TunerConstants.FrontRight),
+                  new ModuleIOSim(TunerConstants.BackLeft),
+                  new ModuleIOSim(TunerConstants.BackRight));
+        }
+      }
+    } else {
+      drive =
+          new Drive(
+              new GyroIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {});
+    }
+
+    drive.setDefaultCommand(
+        drive.joystickDrive(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
   }
 
   /** This function is called periodically during all modes. */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    PhoenixUtil.refreshAll();
+    controllerDisconnected.set(!controller.isConnected());
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
