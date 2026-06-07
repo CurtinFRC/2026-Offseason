@@ -1,18 +1,18 @@
-package frc.robot.subsystems.shooter;
+package org.curtinfrc.frc2026.subsystems.shooter;
 
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ShooterIO {
   @AutoLog
-  public static class ShootIOInputs {
-    public boolean[] motorsConnected = new boolean[2];
-    public double[] motorTemperatures = new double[2];
+  public static class ShooterIOInputs {
+    public boolean[] motorsConnected = new boolean[4];
+    public double[] motorTemperatures = new double[4];
     public double velocityRotationsPerSecond;
     public double currentAmps;
     public double appliedVolts;
   }
 
-  public default void updateInputs(ShootIOInputs inputs) {}
+  public default void updateInputs(ShooterIOInputs inputs) {}
 
   public default void setVoltage(double voltage) {}
 
