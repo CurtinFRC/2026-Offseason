@@ -1,4 +1,4 @@
-package frc.robot.subsystems.hopperindexer;
+package org.curtinfrc.frc2026.subsystems.hopperindexer;
 
 import org.littletonrobotics.junction.AutoLog;
 

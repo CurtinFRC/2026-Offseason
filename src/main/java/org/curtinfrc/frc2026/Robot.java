@@ -7,10 +7,11 @@
 
 package org.curtinfrc.frc2026;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -19,6 +20,9 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
 import org.curtinfrc.frc2026.util.GameState;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -35,8 +39,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private HopperIndexer hopperIndexer;
 
-  private final XboxController controller = new XboxController(0);
+  private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
@@ -90,6 +95,12 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.FrontRight),
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOComp(
+                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                  new IndexerRollerIOComp(
+                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
         }
         case SIM -> {
           drive =
@@ -99,6 +110,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
+          hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
         }
       }
     } else {
@@ -116,6 +128,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    controller.a().whileTrue(hopperIndexer.setVoltage(12));
   }
 
   /** This function is called periodically during all modes. */
