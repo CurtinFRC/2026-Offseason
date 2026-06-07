@@ -19,6 +19,9 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
 import org.curtinfrc.frc2026.util.GameState;
+import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -35,6 +38,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private Shooter shooter;
 
   private final XboxController controller = new XboxController(0);
   private final Alert controllerDisconnected =
@@ -90,6 +94,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.FrontRight),
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
+          shooter = new Shooter(new ShooterIOComp());
         }
         case SIM -> {
           drive =
@@ -99,6 +104,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
+          shooter = new Shooter(new ShooterIO() {});
         }
       }
     } else {
@@ -109,6 +115,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
+      shooter = new Shooter(new ShooterIO() {});
     }
 
     drive.setDefaultCommand(
