@@ -22,6 +22,9 @@ import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
+import org.curtinfrc.frc2026.subsystems.intake.Intake;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -40,6 +43,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Drive drive;
   private Shooter shooter;
+  private Intake intake;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -96,6 +100,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOComp());
+          intake = new Intake(new IntakeIOComp());
         }
         case SIM -> {
           drive =
