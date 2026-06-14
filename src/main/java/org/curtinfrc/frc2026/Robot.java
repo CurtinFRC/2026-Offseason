@@ -19,6 +19,11 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.subsystems.vision.Vision;
+import org.curtinfrc.frc2026.subsystems.vision.VisionConstants;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIO;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVision;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
@@ -51,6 +56,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private Vision vision;
   private Shooter shooter;
   private IntakeArm intakeArm;
   private HopperIndexer hopperIndexer;
@@ -108,6 +114,11 @@ public class Robot extends LoggedRobot {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        vision =
+              new Vision(
+                  drive::addVisionMeasurement,
+                  new VisionIOPhotonVision("shooterLeft", VisionConstants.robotToCamera0),
+                  new VisionIOPhotonVision("shooterRight", VisionConstants.robotToCamera1));
         shooter = new Shooter(new ShooterIOComp());
         intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         hopperIndexer =
@@ -125,6 +136,13 @@ public class Robot extends LoggedRobot {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        vision =
+              new Vision(
+                  drive::addVisionMeasurement,
+                  new VisionIOPhotonVisionSim(
+                      "shooterLeft", VisionConstants.robotToCamera0, drive::getPose),
+                  new VisionIOPhotonVisionSim(
+                      "shooterRight", VisionConstants.robotToCamera1, drive::getPose));
         shooter = new Shooter(new ShooterIOSim());
         intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
         hopperIndexer =
@@ -146,6 +164,7 @@ public class Robot extends LoggedRobot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         shooter = new Shooter(new ShooterIO() {});
         intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
         hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
