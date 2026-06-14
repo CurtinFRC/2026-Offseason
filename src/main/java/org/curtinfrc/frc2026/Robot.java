@@ -10,6 +10,7 @@ package org.curtinfrc.frc2026;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -120,6 +121,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     PhoenixUtil.refreshAll();
+    CommandScheduler.getInstance().run();
     controllerDisconnected.set(!controller.isConnected());
   }
 
