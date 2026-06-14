@@ -1,29 +1,30 @@
 package frc.robot.subsystems.Intake;
-package org.curtinfrc.frc2026.subsystems.Intake;
 
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
   @AutoLog
-  //what we are getting from the motors
   public static class IntakeIOInputs {
-    double rollerMotor1AppliedVoltage;
-    double rollerMotor1CurrentAmps;
-    double rollerMotor1AngularVelocity;
-    double rollerMotor1Position;
+    // what we are getting from the motors
+    public double rollerMotorAppliedVoltage = 0.0;
+    public double rollerMotorCurrentAmps = 0.0;
+    public double rollerMotorAngularVelocity = 0.0;
+    public double rollerMotorPosition = 0.0;
 
-    double armMotorAppliedVoltage;
-    double armMotorCurrentAmps;
-    double armMotorAngularVelocity;
-    double armMotorPosition;
+    public double armMotorAppliedVoltage = 0.0;
+    public double armMotorCurrentAmps = 0.0;
+    public double armMotorAngularVelocity = 0.0;
+    public double armMotorPosition = 0.0;
+  }
 
-    
-  }//what we are sending to the motors
-  public default void setVoltage(double Volts) {}
+  // what we are sending to the motors
+  public default void setRollerVoltage(double volts) {}
+
+  public default void setArmVoltage(double volts) {}
+
+  public default void setRollerVelocity(double velocity) {}
+
+  public default void setArmPosition(double degrees) {}
 
   public default void updateInputs(IntakeIOInputs inputs) {}
-
-  public default void setVelocity(double Velocity) {}
-
-  
 }
