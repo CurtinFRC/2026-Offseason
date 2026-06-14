@@ -22,6 +22,6 @@ public class IndexerRoller extends SubsystemBase {
   }
 
   public Command setVoltage(double voltage) {
-    return (run(() -> indexerRollerIO.setVoltage(voltage)));
+    return run(() -> indexerRollerIO.setVoltage(voltage));
   }
 }
