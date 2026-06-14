@@ -18,9 +18,13 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
-import org.curtinfrc.frc2026.subsystems.intake.Intake;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIO;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOSim;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOSim;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -37,7 +41,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
-  private Intake intake;
+  private IntakeArm intakeArm;
 
   private final XboxController controller = new XboxController(0);
   private final Alert controllerDisconnected =
@@ -93,7 +97,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.FrontRight),
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
-          intake = new Intake(new IntakeIOComp());
+          intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         }
         case SIM -> {
           drive =
@@ -103,6 +107,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
+          intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
         }
       }
     } else {
@@ -113,6 +118,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
+      intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
     }
 
     drive.setDefaultCommand(
