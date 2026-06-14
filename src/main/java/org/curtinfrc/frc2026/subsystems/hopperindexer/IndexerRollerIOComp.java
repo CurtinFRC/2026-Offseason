@@ -17,8 +17,8 @@ import edu.wpi.first.units.measure.Voltage;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class IndexerRollerIOComp implements IndexerRollerIO {
-  private final TalonFX rollerMotor;
-  private final TalonFXConfiguration motorConfig;
+  protected final TalonFX rollerMotor;
+  protected final TalonFXConfiguration motorConfig;
 
   private final StatusSignal<Voltage> voltage;
   private final StatusSignal<AngularVelocity> angularVelocity;
