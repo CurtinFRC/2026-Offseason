@@ -6,16 +6,19 @@ import org.littletonrobotics.junction.Logger;
 
 public class IndexerRoller extends SubsystemBase {
   private final IndexerRollerIO indexerRollerIO;
-  private final IndexerIOInputsAutoLogged indexerRollerInputs = new IndexerIOInputsAutoLogged();
+  private final IndexerRollerIOInputsAutoLogged indexerRollerInputs =
+      new IndexerRollerIOInputsAutoLogged();
+  private final String logName;
 
-  public IndexerRoller(IndexerRollerIO indexerIO) {
+  public IndexerRoller(IndexerRollerIO indexerIO, String logName) {
     this.indexerRollerIO = indexerIO;
+    this.logName = logName;
   }
 
   @Override
   public void periodic() {
     indexerRollerIO.updateInputs(indexerRollerInputs);
-    Logger.processInputs("indexerHopper", indexerRollerInputs);
+    Logger.processInputs(logName, indexerRollerInputs);
   }
 
   public Command setVoltage(double voltage) {
