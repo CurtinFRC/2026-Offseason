@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,12 +20,13 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class IntakeIOComp implements IntakeIO {
 
-  // Two separate motors
   private final TalonFX rollerMotor = new TalonFX(46); // TODO: correct ID
   private final TalonFX armMotor = new TalonFX(47); // TODO: correct ID
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+  // This is new — a request that tells the motor to go to a specific position
+  private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
   // Signals for roller motor
   private final StatusSignal<Voltage> rollerVoltage = rollerMotor.getMotorVoltage();
@@ -51,6 +53,8 @@ public class IntakeIOComp implements IntakeIO {
     var slot0Configs = new Slot0Configs();
     slot0Configs.kD = 0;
     slot0Configs.kI = 0;
+    // This kP is used by ALL three request types — velocity, position, voltage
+    // You'll probably want a higher kP for position control, tune on the real robot
     slot0Configs.kP = 0.01;
 
     tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
@@ -89,7 +93,9 @@ public class IntakeIOComp implements IntakeIO {
   }
 
   @Override
-  public void setArmPosition(double degrees) {
-    // TODO set PID
+  public void setArmPosition(double rotations) {
+    // Send the position request to the arm motor
+    // The motor's internal PID handles getting there smoothly
+    armMotor.setControl(positionRequest.withPosition(rotations));
   }
 }

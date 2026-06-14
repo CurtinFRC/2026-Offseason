@@ -27,22 +27,22 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake", inputs);
   }
 
-  //Stops roller by setting voltage to 0
+  // Stops roller by setting voltage to 0
   public Command stopRoller() {
     return run(() -> io.setRollerVoltage(STOP_MOTOR_VOLTAGE)).withName("stopRoller");
   }
 
-  //Sets roller voltage
+  // Sets roller voltage
   public Command setRollerVoltage(double volts) {
     return run(() -> io.setRollerVoltage(volts)).withName("setRollerVoltage");
   }
 
-  //Sets roller velocity to Consume_VEL_RPS 
+  // Sets roller velocity to Consume_VEL_RPS
   public Command consumeRollerVelocity() {
     return run(() -> io.setRollerVelocity(CONSUME_VEL_RPS)).withName("consumeRollerVelocity");
   }
 
-  //Sets roller velocity to IDLE_VEL_RPS
+  // Sets roller velocity to IDLE_VEL_RPS
   public Command idleRollerVelocity() {
     return run(() -> io.setRollerVelocity(IDLE_VEL_RPS)).withName("idleRollerVelocity");
   }
