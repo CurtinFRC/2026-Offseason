@@ -1,6 +1,6 @@
-package org.curtinfrc.frc2026.subsystems.Intake;
+package frc.robot.subsystems.Intake;
 
-import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -16,19 +16,27 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import org.curtinfrc.frc2026.subsystems.Intake.IntakeIO.In`akeIOInputs;
 
 public class IntakeIODev implements IntakeIO {
-  private final TalonFX motor = new TalonFX(46);
+
+  // Two separate motors
+  private final TalonFX rollerMotor = new TalonFX(46); // TODO: correct ID
+  private final TalonFX armMotor = new TalonFX(47); // TODO: correct ID
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
 
-  private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
-  private final StatusSignal<Current> current = motor.getStatorCurrent();
-  private final StatusSignal<Angle> position = motor.getPosition();
-  private final StatusSignal<AngularVelocity> velocity = motor.getVelocity();
+  // Signals for roller motor
+  private final StatusSignal<Voltage> rollerVoltage = rollerMotor.getMotorVoltage();
+  private final StatusSignal<Current> rollerCurrent = rollerMotor.getStatorCurrent();
+  private final StatusSignal<Angle> rollerPosition = rollerMotor.getPosition();
+  private final StatusSignal<AngularVelocity> rollerVelocity = rollerMotor.getVelocity();
 
-  private final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+  // Signals for arm motor
+  private final StatusSignal<Voltage> armVoltage = armMotor.getMotorVoltage();
+  private final StatusSignal<Current> armCurrent = armMotor.getStatorCurrent();
+  private final StatusSignal<Angle> armPosition = armMotor.getPosition();
+  private final StatusSignal<AngularVelocity> armVelocitySignal = armMotor.getVelocity();
 
   private static final TalonFXConfiguration config =
       new TalonFXConfiguration()
@@ -40,33 +48,48 @@ public class IntakeIODev implements IntakeIO {
               new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
 
   public IntakeIODev() {
-
     var slot0Configs = new Slot0Configs();
-
     slot0Configs.kD = 0;
     slot0Configs.kI = 0;
     slot0Configs.kP = 0.01;
 
-    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
+    tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
+    tryUntilOk(5, () -> armMotor.getConfigurator().apply(config));
 
-    motor.getConfigurator().apply(slot0Configs);
+    rollerMotor.getConfigurator().apply(slot0Configs);
+    armMotor.getConfigurator().apply(slot0Configs);
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.frontMotorAppliedVoltage = voltage.getValueAsDouble();
-    inputs.frontMotorCurrentAmps = current.getValueAsDouble();
-    inputs.frontMotorAngularVelocity = velocity.getValueAsDouble();
+    inputs.rollerMotorAppliedVoltage = rollerVoltage.getValueAsDouble();
+    inputs.rollerMotorCurrentAmps = rollerCurrent.getValueAsDouble();
+    inputs.rollerMotorAngularVelocity = rollerVelocity.getValueAsDouble();
+    inputs.rollerMotorPosition = rollerPosition.getValueAsDouble();
+
+    inputs.armMotorAppliedVoltage = armVoltage.getValueAsDouble();
+    inputs.armMotorCurrentAmps = armCurrent.getValueAsDouble();
+    inputs.armMotorAngularVelocity = armVelocitySignal.getValueAsDouble();
+    inputs.armMotorPosition = armPosition.getValueAsDouble();
   }
 
   @Override
-  public void setVelocity(double Velocity) {
-    m_request.withVelocity(Velocity);
+  public void setRollerVoltage(double volts) {
+    rollerMotor.setControl(voltageRequest.withOutput(volts));
   }
 
   @Override
-  public void setVoltage(double Volts) {
-    // voltageRequest.withOutput(Volts);
-    motor.set(Volts);
+  public void setArmVoltage(double volts) {
+    armMotor.setControl(voltageRequest.withOutput(volts));
+  }
+
+  @Override
+  public void setRollerVelocity(double velocity) {
+    rollerMotor.setControl(velocityRequest.withVelocity(velocity));
+  }
+
+  @Override
+  public void setArmPosition(double degrees) {
+    // TODO set PID
   }
 }
