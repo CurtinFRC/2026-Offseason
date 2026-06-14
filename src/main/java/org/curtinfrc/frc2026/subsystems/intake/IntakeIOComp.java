@@ -1,6 +1,6 @@
-package frc.robot.subsystems.Intake;
+package org.curtinfrc.frc2026.subsystems.intake;
 
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
+import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -17,7 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
-public class IntakeIODev implements IntakeIO {
+public class IntakeIOComp implements IntakeIO {
 
   // Two separate motors
   private final TalonFX rollerMotor = new TalonFX(46); // TODO: correct ID
@@ -47,7 +47,7 @@ public class IntakeIODev implements IntakeIO {
           .withCurrentLimits(
               new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
 
-  public IntakeIODev() {
+  public IntakeIOComp() {
     var slot0Configs = new Slot0Configs();
     slot0Configs.kD = 0;
     slot0Configs.kI = 0;
