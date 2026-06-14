@@ -18,9 +18,7 @@ public class HopperIndexer extends SubsystemBase {
   }
 
   public Command setVoltage(double voltage) {
-    return (run(
-        () ->
-            Commands.parallel(
-                indexerRoller.setVoltage(voltage), hopperIndexerRollers.setVoltage(voltage))));
+    return Commands.parallel(
+        indexerRoller.setVoltage(voltage), hopperIndexerRollers.setVoltage(voltage));
   }
 }

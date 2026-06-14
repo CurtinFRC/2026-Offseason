@@ -34,6 +34,7 @@ import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -127,7 +128,12 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOSim());
           intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
-          hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOSim(
+                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                  new IndexerRollerIOSim(
+                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
         }
       }
     } else {
@@ -140,6 +146,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {});
       shooter = new Shooter(new ShooterIO() {});
       intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
+      hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
     }
 
     drive.setDefaultCommand(
