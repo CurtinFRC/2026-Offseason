@@ -23,6 +23,7 @@ import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -110,7 +111,12 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
-          hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOSim(
+                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                  new IndexerRollerIOSim(
+                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
         }
       }
     } else {
@@ -121,6 +127,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
+      hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
     }
 
     drive.setDefaultCommand(
