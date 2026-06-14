@@ -18,7 +18,7 @@ public class IndexerRoller extends SubsystemBase {
   @Override
   public void periodic() {
     indexerRollerIO.updateInputs(indexerRollerInputs);
-    Logger.processInputs(logName, indexerRollerInputs);
+    Logger.processInputs("hopperIndexer/" + logName, indexerRollerInputs);
   }
 
   public Command setVoltage(double voltage) {
