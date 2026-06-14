@@ -2,9 +2,10 @@ package org.curtinfrc.frc2026.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
-  public static final double ROLLER_DIAMETER = 0;
+  public static final double ROLLER_DIAMETER = 0.082;
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
@@ -16,13 +17,14 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
+    Logger.processInputs("shooter", shooterInputs);
   }
 
   public Command setVoltage(double voltage) {
     return run(() -> shooterIO.setVoltage(voltage));
   }
 
-  public Command setVelocity(double angularVelocityRotationsPerSecond) {
-    return run(() -> shooterIO.setVelocity(angularVelocityRotationsPerSecond));
+  public Command setAngularVelocity(double angularVelocityRotationsPerSecond) {
+    return run(() -> shooterIO.setAngularVelocity(angularVelocityRotationsPerSecond));
   }
 }
