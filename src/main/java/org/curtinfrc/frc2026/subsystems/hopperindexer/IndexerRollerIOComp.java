@@ -49,7 +49,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
   }
 
   @Override
-  public void updateInputs(IndexerIOInputs inputs) {
+  public void updateInputs(IndexerRollerIOInputs inputs) {
     inputs.appliedVolts = voltage.getValueAsDouble();
     inputs.currentAmps = current.getValueAsDouble();
     inputs.positionRotations = position.getValueAsDouble();
