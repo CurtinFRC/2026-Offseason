@@ -24,7 +24,5 @@ public interface IntakeIO {
 
   public default void setRollerVelocity(double velocity) {}
 
-  public default void setArmPosition(double degrees) {}
-
   public default void updateInputs(IntakeIOInputs inputs) {}
 }
