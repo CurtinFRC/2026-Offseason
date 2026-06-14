@@ -2,8 +2,6 @@ package org.curtinfrc.frc2026.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import org.curtinfrc.frc2026.subsystems.Intake.IntakeIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -29,23 +27,23 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake", inputs);
   }
 
-  public Command Stop() {
-    return run(() -> io.setRollerVoltage(STOP_MOTOR_VOLTAGE));
+  //Stops roller by setting voltage to 0
+  public Command stopRoller() {
+    return run(() -> io.setRollerVoltage(STOP_MOTOR_VOLTAGE)).withName("stopRoller");
   }
 
-  public Command RawControlConsume(double Volts) {
-    return run(() -> io.setRollerVoltage(Volts)).withName("consumeVolts");
+  //Sets roller voltage
+  public Command setRollerVoltage(double volts) {
+    return run(() -> io.setRollerVoltage(volts)).withName("setRollerVoltage");
   }
 
-  public Command RawIdle() {
-    return run(() -> io.setRollerVoltage(0)).withName("idleVolts");
+  //Sets roller velocity to Consume_VEL_RPS 
+  public Command consumeRollerVelocity() {
+    return run(() -> io.setRollerVelocity(CONSUME_VEL_RPS)).withName("consumeRollerVelocity");
   }
 
-  public Command ControlConsume() {
-    return run(() -> io.setRollerVelocity(CONSUME_VEL_RPS)).withName("consumeVel");
-  }
-
-  public Command Idle() {
-    return run(() -> io.setRollerVelocity(IDLE_VEL_RPS)).withName("idleVel");
+  //Sets roller velocity to IDLE_VEL_RPS
+  public Command idleRollerVelocity() {
+    return run(() -> io.setRollerVelocity(IDLE_VEL_RPS)).withName("idleRollerVelocity");
   }
 }
