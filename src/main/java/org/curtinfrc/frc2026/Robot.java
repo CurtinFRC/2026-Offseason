@@ -21,6 +21,7 @@ import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -103,7 +104,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
-          shooter = new Shooter(new ShooterIO() {});
+          shooter = new Shooter(new ShooterIOSim());
         }
       }
     } else {
@@ -123,7 +124,7 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.b().whileTrue(shooter.setVoltage(5));
+    controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
   }
 
   /** This function is called periodically during all modes. */
