@@ -1,4 +1,4 @@
-package org.curtinfrc.frc2026.subsystems.Intake;
+package frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,22 +28,22 @@ public class Intake extends SubsystemBase {
   }
 
   public Command Stop() {
-    return run(() -> io.setVoltage(STOP_MOTOR_VOLTAGE)).withName("stop");
+    return run(() -> io.setRollerVoltage(STOP_MOTOR_VOLTAGE));
   }
 
   public Command RawControlConsume(double Volts) {
-    return run(() -> io.setVoltage(Volts)).withName("consumeVolts");
+    return run(() -> io.setRollerVoltage(Volts)).withName("consumeVolts");
   }
 
   public Command RawIdle() {
-    return run(() -> io.setVoltage(0)).withName("idleVolts");
+    return run(() -> io.setRollerVoltage(0)).withName("idleVolts");
   }
 
   public Command ControlConsume() {
-    return run(() -> io.setVelocity(CONSUME_VEL_RPS)).withName("consumeVel");
+    return run(() -> io.setRollerVelocity(CONSUME_VEL_RPS)).withName("consumeVel");
   }
 
   public Command Idle() {
-    return run(() -> io.setVelocity(IDLE_VEL_RPS)).withName("idleVel");
+    return run(() -> io.setRollerVelocity(IDLE_VEL_RPS)).withName("idleVel");
   }
 }
