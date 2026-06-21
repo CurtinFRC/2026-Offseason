@@ -15,9 +15,9 @@ public class ArmIOSim extends ArmIOComp {
   private static final double DT = 0.02;
   private static final double ARM_JKG = 0.0035; // TODO Fix this
   private static final double ARM_LENGTH_METERS = 0.34031;
-  private static final double MIN_ANGLE_RADS = 0.0;
-  private static final double MAX_ANGLE_RADS = 0.0;
-  private static final double STARTING_ANGLE_RADS = 0.0;
+  private static final double MIN_ANGLE_RADS = 0.0; // TODO fix this
+  private static final double MAX_ANGLE_RADS = 0.0; // TODO fix this
+  private static final double STARTING_ANGLE_RADS = 0.0; // TODO fix this
 
   private final TalonFXSimState motorSim;
   private final DCMotor motorType = DCMotor.getKrakenX60Foc(3);
@@ -51,7 +51,7 @@ public class ArmIOSim extends ArmIOComp {
     motorSimModel.update(DT);
 
     double motorRotations =
-        Units.radiansToRotations(motorSimModel.getAngleRads()) * GEAR_RATIO - STARTING_ANGLE_RADS;
+        Units.radiansToRotations(motorSimModel.getAngleRads() - STARTING_ANGLE_RADS) * GEAR_RATIO;
     double motorRPS = Units.radiansToRotations(motorSimModel.getVelocityRadPerSec()) * GEAR_RATIO;
 
     motorSim.setRawRotorPosition(motorRotations);

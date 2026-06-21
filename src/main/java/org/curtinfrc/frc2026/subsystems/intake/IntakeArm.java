@@ -18,16 +18,19 @@ public class IntakeArm extends SubsystemBase {
   // These variables are used for the voltage and velocity//
   private static final double STOP_MOTOR_VOLTAGE = 0;
   // consume means intake//
-  private final double CONSUME_VEL_RPS = 8;
+  private static final double CONSUME_VEL_RPS = 8;
   // vel means velocity//
   private static final double IDLE_VEL_RPS = 2;
+  // Arm position for game piece intake (in rotations)
+  private static final double INTAKE_POSITION_ROTATIONS = 5.0; // TODO
+  private static final double SHOOTING_ARM_POSITION_ROTATIONS = 3.0;
 
   @Override
   public void periodic() {
     intakeIO.updateInputs(intakeInputs);
     armIO.updateInputs(armInputs);
     Logger.processInputs("Intake", intakeInputs);
-    Logger.processInputs("Intake", armInputs);
+    Logger.processInputs("Arm", armInputs);
   }
 
   // Stops roller by setting voltage to 0
@@ -53,6 +56,6 @@ public class IntakeArm extends SubsystemBase {
   // Set arm rotation
 
   public Command setIntakeArmPosition() {
-    return run(() -> armIO.setArmPosition(5)).withName("armPosition");
+    return run(() -> armIO.setArmPosition(INTAKE_POSITION_ROTATIONS)).withName("armPosition");
   }
 }
