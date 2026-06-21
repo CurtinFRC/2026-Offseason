@@ -21,7 +21,7 @@ import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class ArmIOComp implements ArmIO {
 
-  public final TalonFX armMotor = new TalonFX(47); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(47); // TODO: correct ID
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
 
@@ -30,10 +30,10 @@ public class ArmIOComp implements ArmIO {
   public static final double GEAR_RATIO = 1;
 
   // Signals for arm motor
-  private final StatusSignal<Voltage> voltage = armMotor.getMotorVoltage();
-  private final StatusSignal<Current> current = armMotor.getStatorCurrent();
-  private final StatusSignal<Angle> position = armMotor.getPosition();
-  private final StatusSignal<AngularVelocity> velocity = armMotor.getVelocity();
+  private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
+  private final StatusSignal<Current> current = motor.getStatorCurrent();
+  private final StatusSignal<Angle> position = motor.getPosition();
+  private final StatusSignal<AngularVelocity> velocity = motor.getVelocity();
 
   private static final TalonFXConfiguration config =
       new TalonFXConfiguration()
@@ -52,32 +52,32 @@ public class ArmIOComp implements ArmIO {
     // You'll probably want a higher kP for position control, tune on the real robot
     slot0Configs.kP = 0.01;
 
-    tryUntilOk(5, () -> armMotor.getConfigurator().apply(config));
-    armMotor.getConfigurator().apply(slot0Configs);
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
+    motor.getConfigurator().apply(slot0Configs);
 
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, voltage, current);
-    armMotor.optimizeBusUtilization();
+    motor.optimizeBusUtilization();
     PhoenixUtil.registerSignals(false, voltage, velocity, voltage, current);
   }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
 
-    inputs.armMotorAppliedVoltage = voltage.getValueAsDouble();
-    inputs.armMotorCurrentAmps = current.getValueAsDouble();
-    inputs.armMotorAngularVelocity = velocity.getValueAsDouble();
-    inputs.armMotorPosition = position.getValueAsDouble();
+    inputs.appliedVoltage = voltage.getValueAsDouble();
+    inputs.currentAmps = current.getValueAsDouble();
+    inputs.angularVelocity = velocity.getValueAsDouble();
+    inputs.motorPosition = position.getValueAsDouble();
   }
 
   @Override
   public void setArmVoltage(double volts) {
-    armMotor.setControl(voltageRequest.withOutput(volts));
+    motor.setControl(voltageRequest.withOutput(volts));
   }
 
   @Override
   public void setArmPosition(double rotations) {
     // Send the position request to the arm motor
     // The motor's internal PID handles getting there smoothly
-    armMotor.setControl(positionRequest.withPosition(rotations));
+    motor.setControl(positionRequest.withPosition(rotations));
   }
 }

@@ -21,7 +21,7 @@ import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class IntakeIOComp implements IntakeIO {
 
-  public final TalonFX rollerMotor = new TalonFX(46); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(46); // TODO: correct ID
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
@@ -29,10 +29,10 @@ public class IntakeIOComp implements IntakeIO {
   public static final double GEAR_RATIO = 1;
 
   // Signals for roller motor
-  private final StatusSignal<Voltage> voltage = rollerMotor.getMotorVoltage();
-  private final StatusSignal<Current> current = rollerMotor.getStatorCurrent();
-  private final StatusSignal<Angle> position = rollerMotor.getPosition();
-  private final StatusSignal<AngularVelocity> velocity = rollerMotor.getVelocity();
+  private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
+  private final StatusSignal<Current> current = motor.getStatorCurrent();
+  private final StatusSignal<Angle> position = motor.getPosition();
+  private final StatusSignal<AngularVelocity> velocity = motor.getVelocity();
 
   private static final TalonFXConfiguration config =
       new TalonFXConfiguration()
@@ -51,30 +51,30 @@ public class IntakeIOComp implements IntakeIO {
     // Tune on the real robot for optimal performance
     slot0Configs.kP = 0.01;
 
-    tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
 
-    rollerMotor.getConfigurator().apply(slot0Configs);
+    motor.getConfigurator().apply(slot0Configs);
 
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, voltage, current);
-    rollerMotor.optimizeBusUtilization();
+    motor.optimizeBusUtilization();
     PhoenixUtil.registerSignals(false, voltage, velocity, voltage, current);
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.rollerMotorAppliedVoltage = voltage.getValueAsDouble();
-    inputs.rollerMotorCurrentAmps = current.getValueAsDouble();
-    inputs.rollerMotorAngularVelocity = velocity.getValueAsDouble();
+    inputs.appliedVoltage = voltage.getValueAsDouble();
+    inputs.currentAmps = current.getValueAsDouble();
+    inputs.angularVelocity = velocity.getValueAsDouble();
     inputs.rollerMotorPosition = position.getValueAsDouble();
   }
 
   @Override
   public void setRollerVoltage(double volts) {
-    rollerMotor.setControl(voltageRequest.withOutput(volts));
+    motor.setControl(voltageRequest.withOutput(volts));
   }
 
   @Override
   public void setRollerVelocity(double velocity) {
-    rollerMotor.setControl(velocityRequest.withVelocity(velocity));
+    motor.setControl(velocityRequest.withVelocity(velocity));
   }
 }
