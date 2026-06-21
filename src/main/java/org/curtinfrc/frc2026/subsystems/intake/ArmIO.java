@@ -7,10 +7,10 @@ public interface ArmIO {
   public static class ArmIOInputs {
     // what we are getting from the motors
 
-    public double armMotorAppliedVoltage = 0.0;
-    public double armMotorCurrentAmps = 0.0;
-    public double armMotorAngularVelocity = 0.0;
-    public double armMotorPosition = 0.0;
+    public double appliedVoltage = 0.0;
+    public double currentAmps = 0.0;
+    public double angularVelocity = 0.0;
+    public double motorPosition = 0.0;
   }
 
   // what we are sending to the motors
