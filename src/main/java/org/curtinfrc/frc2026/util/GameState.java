@@ -35,18 +35,22 @@ public class GameState {
 
   public static void updateGameData() {
     String gameData = DriverStation.getGameSpecificMessage();
-    if (noGameDataAlert.get()) {
+    if (gameData.isEmpty()) {
+      inactiveFirst = Optional.empty();
       noGameDataAlert.set(true);
-      if (gameData.length() > 0) {
-        if (gameData.charAt(0) == 'B' || gameData.charAt(0) == 'R') {
-          noGameDataAlert.set(false);
-        }
-      }
+      return;
     }
 
-    if (inactiveFirst.isEmpty() && !noGameDataAlert.get()) {
-      inactiveFirst =
-          Optional.of((gameData == "B") ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
+    char inactiveAlliance = gameData.charAt(0);
+    if (inactiveAlliance == 'B') {
+      inactiveFirst = Optional.of(DriverStation.Alliance.Blue);
+      noGameDataAlert.set(false);
+    } else if (inactiveAlliance == 'R') {
+      inactiveFirst = Optional.of(DriverStation.Alliance.Red);
+      noGameDataAlert.set(false);
+    } else {
+      inactiveFirst = Optional.empty();
+      noGameDataAlert.set(true);
     }
   }
 
@@ -72,7 +76,8 @@ public class GameState {
         gamePeriodNumber = 0;
       } else {
         gamePeriodNumber =
-            (int) Math.ceil((gameTime - TRANSITION_PERIOD_LENGTH) / MATCH_SHIFT_LENGTH);
+            Math.min(
+                (int) Math.ceil((gameTime - TRANSITION_PERIOD_LENGTH) / MATCH_SHIFT_LENGTH), 5);
       }
     }
 
@@ -93,8 +98,10 @@ public class GameState {
     boolean isActive = false;
     if (gamePeriodNumber == 0) {
       isActive = true;
-    } else {
+    } else if (gamePeriodNumber < 5) {
       isActive = !(gamePeriodNumber % 2 == shiftDiscriminant);
+    } else {
+      isActive = true;
     }
     return isActive;
   }
