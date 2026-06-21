@@ -18,6 +18,7 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -122,6 +123,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     PhoenixUtil.refreshAll();
     CommandScheduler.getInstance().run();
+    GameState.periodic();
     controllerDisconnected.set(!controller.isConnected());
   }
 
