@@ -10,7 +10,6 @@ package org.curtinfrc.frc2026;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;

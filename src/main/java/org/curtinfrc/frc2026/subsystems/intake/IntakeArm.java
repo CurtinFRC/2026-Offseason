@@ -56,7 +56,8 @@ public class IntakeArm extends SubsystemBase {
   // Set arm rotation
 
   public Command setIntakeArmPosition() {
-    return run(() -> armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS)).withName("intakeArmPosition");
+    return run(() -> armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS))
+        .withName("intakeArmPosition");
   }
 
   public Command setShootingArmPosition() {
@@ -65,9 +66,10 @@ public class IntakeArm extends SubsystemBase {
   }
 
   public Command intakeDefaultCommand() {
-    return run(() -> {
-      armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS);
-      intakeIO.setRollerVoltage(12);
-    });
+    return run(
+        () -> {
+          armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS);
+          intakeIO.setRollerVoltage(12);
+        });
   }
 }
