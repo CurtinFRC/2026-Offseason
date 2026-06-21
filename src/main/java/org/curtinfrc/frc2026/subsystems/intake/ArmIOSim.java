@@ -16,7 +16,7 @@ public class ArmIOSim extends ArmIOComp {
   private static final double ARM_JKG = 0.0035; // TODO Fix this
   private static final double ARM_LENGTH_METERS = 0.34031;
   private static final double MIN_ANGLE_RADS = 0.0; // TODO fix this
-  private static final double MAX_ANGLE_RADS = 0.0; // TODO fix this
+  private static final double MAX_ANGLE_RADS = 1.57; // TODO fix this
   private static final double STARTING_ANGLE_RADS = 0.0; // TODO fix this
 
   private final TalonFXSimState motorSim;
