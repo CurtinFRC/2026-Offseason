@@ -22,8 +22,8 @@ public class IntakeArm extends SubsystemBase {
   // vel means velocity//
   private static final double IDLE_VEL_RPS = 2;
   // Arm position for game piece intake (in rotations)
-  private static final double INTAKE_POSITION_ROTATIONS = 5.0; // TODO
-  private static final double SHOOTING_ARM_POSITION_ROTATIONS = 3.0;
+  private static final double INTAKE_ARM_POSITION_ROTATIONS = 5.0; // TODO
+  private static final double SHOOTING_ARM_POSITION_ROTATIONS = 3.0; // TODO
 
   @Override
   public void periodic() {
@@ -56,6 +56,18 @@ public class IntakeArm extends SubsystemBase {
   // Set arm rotation
 
   public Command setIntakeArmPosition() {
-    return run(() -> armIO.setArmPosition(INTAKE_POSITION_ROTATIONS)).withName("armPosition");
+    return run(() -> armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS)).withName("intakeArmPosition");
+  }
+
+  public Command setShootingArmPosition() {
+    return run(() -> armIO.setArmPosition(SHOOTING_ARM_POSITION_ROTATIONS))
+        .withName("shootingArmPosition");
+  }
+
+  public Command intakeDefaultCommand() {
+    return run(() -> {
+      armIO.setArmPosition(INTAKE_ARM_POSITION_ROTATIONS);
+      intakeIO.setRollerVoltage(12);
+    });
   }
 }

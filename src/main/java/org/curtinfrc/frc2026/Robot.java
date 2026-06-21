@@ -10,6 +10,7 @@ package org.curtinfrc.frc2026;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
@@ -141,8 +142,9 @@ public class Robot extends LoggedRobot {
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.setRollerVoltage(0));
+    intakeArm.setDefaultCommand(intakeArm.intakeDefaultCommand());
+    controller.a().whileTrue(intakeArm.setShootingArmPosition());
     controller.x().whileTrue(intakeArm.setRollerVoltage(12));
-    controller.y().whileTrue(intakeArm.setIntakeArmPosition());
   }
 
   /** This function is called periodically during all modes. */
