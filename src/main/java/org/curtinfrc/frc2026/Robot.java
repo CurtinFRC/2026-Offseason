@@ -9,8 +9,8 @@ package org.curtinfrc.frc2026;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -44,7 +44,7 @@ public class Robot extends LoggedRobot {
   private Drive drive;
   private IntakeArm intakeArm;
 
-  private final XboxController controller = new XboxController(0);
+  private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
@@ -127,6 +127,9 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+    intakeArm.setDefaultCommand(intakeArm.setRollerVoltage(0));
+    controller.x().whileTrue(intakeArm.setRollerVoltage(12));
+    controller.y().whileTrue(intakeArm.setIntakeArmPosition());
   }
 
   /** This function is called periodically during all modes. */

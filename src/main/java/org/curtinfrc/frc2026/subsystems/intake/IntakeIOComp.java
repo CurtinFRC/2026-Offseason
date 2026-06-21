@@ -2,6 +2,7 @@ package org.curtinfrc.frc2026.subsystems.intake;
 
 import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -16,6 +17,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class IntakeIOComp implements IntakeIO {
 
@@ -27,10 +29,10 @@ public class IntakeIOComp implements IntakeIO {
   public static final double GEAR_RATIO = 1;
 
   // Signals for roller motor
-  private final StatusSignal<Voltage> rollerVoltage = rollerMotor.getMotorVoltage();
-  private final StatusSignal<Current> rollerCurrent = rollerMotor.getStatorCurrent();
-  private final StatusSignal<Angle> rollerPosition = rollerMotor.getPosition();
-  private final StatusSignal<AngularVelocity> rollerVelocity = rollerMotor.getVelocity();
+  private final StatusSignal<Voltage> voltage = rollerMotor.getMotorVoltage();
+  private final StatusSignal<Current> current = rollerMotor.getStatorCurrent();
+  private final StatusSignal<Angle> position = rollerMotor.getPosition();
+  private final StatusSignal<AngularVelocity> velocity = rollerMotor.getVelocity();
 
   private static final TalonFXConfiguration config =
       new TalonFXConfiguration()
@@ -45,21 +47,25 @@ public class IntakeIOComp implements IntakeIO {
     var slot0Configs = new Slot0Configs();
     slot0Configs.kD = 0;
     slot0Configs.kI = 0;
-    // This kP is used by ALL three request types — velocity, position, voltage
-    // You'll probably want a higher kP for position control, tune on the real robot
+    // This kP is used by both voltage and velocity control requests
+    // Tune on the real robot for optimal performance
     slot0Configs.kP = 0.01;
 
     tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
 
     rollerMotor.getConfigurator().apply(slot0Configs);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, voltage, current);
+    rollerMotor.optimizeBusUtilization();
+    PhoenixUtil.registerSignals(false, voltage, velocity, voltage, current);
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.rollerMotorAppliedVoltage = rollerVoltage.getValueAsDouble();
-    inputs.rollerMotorCurrentAmps = rollerCurrent.getValueAsDouble();
-    inputs.rollerMotorAngularVelocity = rollerVelocity.getValueAsDouble();
-    inputs.rollerMotorPosition = rollerPosition.getValueAsDouble();
+    inputs.rollerMotorAppliedVoltage = voltage.getValueAsDouble();
+    inputs.rollerMotorCurrentAmps = current.getValueAsDouble();
+    inputs.rollerMotorAngularVelocity = velocity.getValueAsDouble();
+    inputs.rollerMotorPosition = position.getValueAsDouble();
   }
 
   @Override

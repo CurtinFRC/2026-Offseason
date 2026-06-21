@@ -14,15 +14,15 @@ public class IntakeIOSim extends IntakeIOComp {
   private static final double DT = 0.02;
   private static final double INTAKE_JKG = 0.0035; // TODO Fix this
 
-  private final TalonFXSimState motorSim;
+  private final TalonFXSimState intakeSim;
   private final DCMotor motorType = DCMotor.getKrakenX60Foc(3);
   private final DCMotorSim motorSimModel;
   private final Notifier simNotifier;
 
   public IntakeIOSim() {
     super();
-    motorSim = rollerMotor.getSimState();
-    motorSim.setMotorType(MotorType.KrakenX60);
+    intakeSim = rollerMotor.getSimState();
+    intakeSim.setMotorType(MotorType.KrakenX60);
     motorSimModel =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(motorType, INTAKE_JKG, GEAR_RATIO), motorType);
@@ -32,12 +32,17 @@ public class IntakeIOSim extends IntakeIOComp {
   }
 
   public void updateSim() {
-    double motorVolts = motorSim.getMotorVoltageMeasure().in(Volts);
+    double motorVolts = intakeSim.getMotorVoltageMeasure().in(Volts);
     motorSimModel.setInputVoltage(motorVolts);
     motorSimModel.update(DT);
 
-    motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-    motorSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
-    motorSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM());
+    intakeSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+    intakeSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
+    intakeSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM() / 60.0);
+  }
+
+  @Override
+  public void updateInputs(IntakeIOInputs inputs) {
+    super.updateInputs(inputs);
   }
 }
