@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class IntakeIOSim extends IntakeIOComp {
   private static final double DT = 0.02;
-  private static final double INTAKE_JKG = 0.0035; // TODO Fix this
+  private static final double INTAKE_JKG = 0.1986; // TODO Fix this
 
   private final TalonFXSimState intakeSim;
   private final DCMotor motorType = DCMotor.getKrakenX60Foc(3);
