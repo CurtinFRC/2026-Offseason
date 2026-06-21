@@ -71,7 +71,7 @@ public class ShooterIOComp implements ShooterIO {
     tryUntilOk(5, () -> followerMotor2.getConfigurator().apply(sharedMotorConfig));
     tryUntilOk(5, () -> followerMotor3.getConfigurator().apply(sharedMotorConfig));
 
-    followerMotor1.setControl(new Follower(ID1, MotorAlignmentValue.Opposed));
+    followerMotor1.setControl(new Follower(ID1, MotorAlignmentValue.Opposed)); // check
     followerMotor2.setControl(new Follower(ID1, MotorAlignmentValue.Aligned));
     followerMotor3.setControl(new Follower(ID1, MotorAlignmentValue.Opposed));
 
