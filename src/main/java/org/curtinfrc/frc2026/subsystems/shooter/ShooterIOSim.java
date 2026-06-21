@@ -39,7 +39,7 @@ public class ShooterIOSim extends ShooterIOComp {
 
     motorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
     motorSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
-    motorSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM());
+    motorSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM() / 60.0);
   }
 
   @Override
