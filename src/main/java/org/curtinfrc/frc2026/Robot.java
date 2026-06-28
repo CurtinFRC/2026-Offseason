@@ -19,11 +19,11 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
-import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
+import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -136,7 +136,7 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.a().whileTrue(hopperIndexer.setVoltage(12));
+    controller.a().whileTrue(hopperIndexer.setHopperRollerVoltage(12));
   }
 
   /** This function is called periodically during all modes. */

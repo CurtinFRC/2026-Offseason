@@ -17,8 +17,16 @@ public class HopperIndexer extends SubsystemBase {
     this.hopperIndexerRollers = new IndexerRoller(hopperIndexerRollers, "hopperIndexerRollers");
   }
 
-  public Command setVoltage(double voltage) {
+  public Command setHopperIndexerVoltage(double voltage) {
     return Commands.parallel(
         indexerRoller.setVoltage(voltage), hopperIndexerRollers.setVoltage(voltage));
+  }
+
+  public Command setIndexerRollerVoltage(double voltage) {
+    return indexerRoller.setVoltage(voltage);
+  }
+
+  public Command setHopperRollerVoltage(double voltage) {
+    return hopperIndexerRollers.setVoltage(voltage);
   }
 }
