@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -18,6 +21,7 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.util.AutoChooser;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -27,6 +31,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import choreo.auto.AutoFactory;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -35,6 +41,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+
+  private final AutoChooser autoChooser;
+  private final AutoFactory factory;
 
   private final XboxController controller = new XboxController(0);
   private final Alert controllerDisconnected =
@@ -111,6 +120,19 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {});
     }
 
+    factory =
+      new AutoFactory(
+            drive::getPose,
+            drive::setPose,
+            drive::followTrajectory,
+            true,
+            drive,
+            drive::logTrajectory);
+     autoChooser = new AutoChooser("Auto Chooser");
+     autoChooser.addCmd("67", () -> Commands.sequence(factory.resetOdometry("RightTrenchNeutralSweep"), factory.trajectoryCmd("RightTrenchNeutralSweep")));
+
+     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
     drive.setDefaultCommand(
         drive.joystickDrive(
             () -> -controller.getLeftY(),
@@ -133,7 +155,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    autoChooser.periodic();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

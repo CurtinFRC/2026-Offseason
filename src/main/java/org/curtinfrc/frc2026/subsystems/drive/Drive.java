@@ -13,6 +13,9 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +28,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -39,6 +43,9 @@ import org.curtinfrc.frc2026.Constants;
 import org.curtinfrc.frc2026.Constants.Mode;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -100,6 +107,52 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+  }
+
+  private PIDController xFollower = new PIDController(10, 0, 0);
+  private PIDController yFollower = new PIDController(10, 0, 0);
+  private final PIDController headingFollower = new PIDController(7.5, 0, 0);
+
+  public void followTrajectory(SwerveSample sample) {
+    Logger.recordOutput("Odometry/Sample", sample);
+    Logger.recordOutput("Odometry/TargetPose", sample.getPose());
+    var pose = getPose();
+    var feedforwards = new double[4];
+    var forcesX = sample.moduleForcesX();
+    var forcesY = sample.moduleForcesY();
+    // Let torque be τ, current be i, Kt be the motor torque constant, r be the wheel radius vector,
+    // and F be the module force vector
+    // τ=Kt
+    // τ=r×F
+    // K_ti=r×F
+    // i =(r×F)/K_t
+    var kT = DCMotor.getKrakenX60Foc(1).KtNMPerAmp * 5.99;
+    var wheelRadius = VecBuilder.fill(0, 0, 0.0508);
+    for (var i = 0; i < forcesX.length; i++) {
+      var translation = new Translation2d(forcesX[i], forcesY[i]);
+      var rotated = translation.rotateBy(getRotation().unaryMinus());
+      var force = VecBuilder.fill(rotated.getX(), rotated.getY(), 0);
+      feedforwards[i] = Vector.cross(wheelRadius, force).div(kT).norm();
+    }
+
+    var speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            sample.vx + xFollower.calculate(pose.getTranslation().getX(), sample.x),
+            sample.vy + yFollower.calculate(pose.getTranslation().getY(), sample.y),
+            sample.omega + headingFollower.calculate(getRotation().getRadians(), sample.heading),
+            getRotation());
+
+    runVelocity(speeds.unaryMinus(), feedforwards);
+  }
+
+  public void logTrajectory(Trajectory<SwerveSample> traj, boolean isFinished) {
+    SwerveSample[] trajarray = new SwerveSample[0];
+    boolean flip =
+        DriverStation.isDSAttached() && DriverStation.getAlliance().get() != Alliance.Blue;
+    Logger.recordOutput(
+        "Odometry/Trajectory",
+        flip ? traj.flipped().samples().toArray(trajarray) : traj.samples().toArray(trajarray));
+    Logger.recordOutput("Odometry/TrajectoryFinished", isFinished);
   }
 
   @Override
@@ -166,7 +219,7 @@ public class Drive extends SubsystemBase {
    *
    * @param speeds Speeds in meters/sec
    */
-  public void runVelocity(ChassisSpeeds speeds) {
+  public void runVelocity(ChassisSpeeds speeds, double[] feedforwards) {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -178,7 +231,7 @@ public class Drive extends SubsystemBase {
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
-      modules[i].runSetpoint(setpointStates[i]);
+      modules[i].runSetpoint(setpointStates[i], feedforwards[i]);
     }
 
     // Log optimized setpoints (runSetpoint mutates each state)
@@ -194,7 +247,7 @@ public class Drive extends SubsystemBase {
 
   /** Stops the drive. */
   public void stop() {
-    runVelocity(new ChassisSpeeds());
+    runVelocity(new ChassisSpeeds(), new double[4]);
   }
 
   /**
@@ -252,7 +305,7 @@ public class Drive extends SubsystemBase {
                   && DriverStation.getAlliance().get() == Alliance.Red;
           runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds, isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()));
+                  speeds, isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()), new double[4]);
         });
   }
 
