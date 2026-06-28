@@ -35,6 +35,7 @@ import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
+import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -158,7 +159,7 @@ public class Robot extends LoggedRobot {
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
-    controller.a().whileTrue(hopperIndexer.setVoltage(12));
+    controller.a().whileTrue(hopperIndexer.setHopperRollerVoltage(12));
   }
 
   /** This function is called periodically during all modes. */

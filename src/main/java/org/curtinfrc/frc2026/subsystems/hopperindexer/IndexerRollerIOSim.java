@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class IndexerRollerIOSim extends IndexerRollerIOComp {
   private static final double DT = 0.02;
-  private static final double ROLLER_JKG = 0.0035; // temp
+  private static final double ROLLER_JKG = 0.00011321; // temp
 
   private final TalonFXSimState motorSim;
   private final DCMotor motorType = DCMotor.getKrakenX60Foc(1);
