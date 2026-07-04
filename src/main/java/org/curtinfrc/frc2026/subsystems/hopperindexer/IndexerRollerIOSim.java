@@ -13,20 +13,20 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class IndexerRollerIOSim extends IndexerRollerIOComp {
   private static final double DT = 0.02;
-  private static final double ROLLER_JKG = 0.00011321; // temp
 
   private final TalonFXSimState motorSim;
   private final DCMotor motorType = DCMotor.getKrakenX60Foc(1);
   private final DCMotorSim motorSimModel;
   private final Notifier simNotifier;
 
-  public IndexerRollerIOSim(int motorID, InvertedValue invertedValue) {
+  public IndexerRollerIOSim(int motorID, InvertedValue invertedValue, double moiJKgMetresSquared) {
     super(motorID, invertedValue);
 
     motorSim = rollerMotor.getSimState();
     motorSim.setMotorType(MotorType.KrakenX60);
     motorSimModel =
-        new DCMotorSim(LinearSystemId.createDCMotorSystem(motorType, ROLLER_JKG, 1.0), motorType);
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(motorType, moiJKgMetresSquared, 1.0), motorType);
 
     simNotifier = new Notifier(this::updateSim);
     simNotifier.startPeriodic(DT);

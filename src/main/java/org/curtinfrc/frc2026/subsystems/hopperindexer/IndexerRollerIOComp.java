@@ -23,7 +23,8 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
   private final StatusSignal<Voltage> voltage;
   private final StatusSignal<AngularVelocity> angularVelocity;
   private final StatusSignal<Angle> position;
-  private final StatusSignal<Current> current;
+  private final StatusSignal<Current> statorCurrent;
+  private final StatusSignal<Current> supplyCurrent;
 
   public IndexerRollerIOComp(int motorID, InvertedValue invertedValue) {
     rollerMotor = new TalonFX(motorID);
@@ -41,17 +42,21 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
     voltage = rollerMotor.getMotorVoltage();
     angularVelocity = rollerMotor.getVelocity();
     position = rollerMotor.getPosition();
-    current = rollerMotor.getStatorCurrent();
+    statorCurrent = rollerMotor.getStatorCurrent();
+    supplyCurrent = rollerMotor.getSupplyCurrent();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(20.0, voltage, current, position, angularVelocity);
-    PhoenixUtil.registerSignals(false, voltage, current, angularVelocity, position);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, voltage, statorCurrent, supplyCurrent, position, angularVelocity);
+    PhoenixUtil.registerSignals(
+        false, voltage, statorCurrent, supplyCurrent, angularVelocity, position);
     rollerMotor.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(IndexerRollerIOInputs inputs) {
     inputs.appliedVolts = voltage.getValueAsDouble();
-    inputs.currentAmps = current.getValueAsDouble();
+    inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRotationsPerSecond = angularVelocity.getValueAsDouble();
   }
