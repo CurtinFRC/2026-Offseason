@@ -19,23 +19,25 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import java.util.List;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class ShooterIOComp implements ShooterIO {
-  // temp
+  // TODO! update for real robot
   public static final int ID1 = 10; // BL Shooter
   public static final int ID2 = 11; // BR Shooter
   public static final int ID3 = 12; // FL Shooter
   public static final int ID4 = 13; // FR Shooter
 
-  public static final double GEAR_RATIO = 1.0;
-  private static final double KP = 0.0;
+  public static final double GEAR_RATIO = 2.0;
+  private static final double KP = 0.0488;
   private static final double KI = 0.0;
   private static final double KD = 0.0;
   private static final double KS = 0.0;
-  private static final double KV = 0.0;
-  private static final double KA = 0.0;
+  private static final double KV = 1.059;
+  private static final double KA = 0.014;
 
   protected final TalonFX leaderMotor = new TalonFX(ID1);
   protected final TalonFX followerMotor1 = new TalonFX(ID2);
@@ -49,7 +51,7 @@ public class ShooterIOComp implements ShooterIO {
                   .withNeutralMode(NeutralModeValue.Coast)
                   .withInverted(InvertedValue.CounterClockwise_Positive))
           .withCurrentLimits(
-              new CurrentLimitsConfigs().withSupplyCurrentLimit(100).withStatorCurrentLimit(120))
+              new CurrentLimitsConfigs().withSupplyCurrentLimit(40).withStatorCurrentLimit(60))
           .withFeedback(
               new FeedbackConfigs()
                   .withSensorToMechanismRatio(GEAR_RATIO)
@@ -58,9 +60,17 @@ public class ShooterIOComp implements ShooterIO {
               new Slot0Configs().withKP(KP).withKI(KI).withKD(KD).withKS(KS).withKV(KV).withKA(KA));
 
   private final StatusSignal<Voltage> voltage = leaderMotor.getMotorVoltage();
-  private final StatusSignal<Current> current = leaderMotor.getStatorCurrent();
+  private final StatusSignal<Current> statorCurrent = leaderMotor.getStatorCurrent();
+  private final StatusSignal<Current> supplyCurrent = leaderMotor.getSupplyCurrent();
   private final StatusSignal<AngularVelocity> velocity = leaderMotor.getVelocity();
   private final StatusSignal<AngularAcceleration> acceleration = leaderMotor.getAcceleration();
+
+  private final List<StatusSignal<Temperature>> motorTemperatures =
+      List.of(
+          leaderMotor.getDeviceTemp(),
+          followerMotor1.getDeviceTemp(),
+          followerMotor2.getDeviceTemp(),
+          followerMotor3.getDeviceTemp());
 
   final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   final VelocityVoltage velocityRequest = new VelocityVoltage(0).withEnableFOC(true).withSlot(0);
@@ -75,18 +85,39 @@ public class ShooterIOComp implements ShooterIO {
     followerMotor2.setControl(new Follower(ID1, MotorAlignmentValue.Aligned));
     followerMotor3.setControl(new Follower(ID1, MotorAlignmentValue.Opposed));
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, velocity, acceleration, voltage, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, velocity, acceleration, voltage, statorCurrent, supplyCurrent);
+    voltage.setUpdateFrequency(1000);
+    for (int i = 0; i < 4; i++) {
+      motorTemperatures.get(i).setUpdateFrequency(50.0);
+    }
+
     leaderMotor.optimizeBusUtilization();
     followerMotor1.optimizeBusUtilization();
     followerMotor2.optimizeBusUtilization();
     followerMotor3.optimizeBusUtilization();
-    PhoenixUtil.registerSignals(false, velocity, acceleration, voltage, current);
+    PhoenixUtil.registerSignals(
+        false,
+        velocity,
+        acceleration,
+        voltage,
+        statorCurrent,
+        supplyCurrent,
+        motorTemperatures.get(0),
+        motorTemperatures.get(1),
+        motorTemperatures.get(2),
+        motorTemperatures.get(3));
   }
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
+    inputs.motorTemperatures = new double[4];
+    for (int motor = 0; motor < 4; motor++) {
+      inputs.motorTemperatures[motor] = motorTemperatures.get(motor).getValueAsDouble();
+    }
     inputs.appliedVolts = voltage.getValueAsDouble();
-    inputs.currentAmps = current.getValueAsDouble();
+    inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.velocityRotationsPerSecond = velocity.getValueAsDouble();
     inputs.accelerationRotationsPerSecondPerSecond = acceleration.getValueAsDouble();
   }

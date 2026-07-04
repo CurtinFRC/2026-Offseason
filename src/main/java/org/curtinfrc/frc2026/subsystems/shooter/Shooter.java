@@ -1,23 +1,44 @@
 package org.curtinfrc.frc2026.subsystems.shooter;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   public static final double ROLLER_DIAMETER = 0.082;
+  public static final double MOTOR_WARNING_TEMP = 60;
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
 
+  private final Alert[] shooterMotorTempAlerts = new Alert[4];
+
   public Shooter(ShooterIO shooterIO) {
     this.shooterIO = shooterIO;
+
+    for (int motor = 0; motor < 4; motor++) {
+      shooterMotorTempAlerts[motor] =
+          new Alert(
+              "Shooter motor "
+                  + String.valueOf(motor)
+                  + " temperature above "
+                  + MOTOR_WARNING_TEMP
+                  + "°C.",
+              AlertType.kWarning);
+    }
   }
 
   @Override
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("shooter", shooterInputs);
+
+    for (int motor = 0; motor < 4; motor++) {
+      shooterMotorTempAlerts[motor].set(
+          shooterInputs.motorTemperatures[motor] > MOTOR_WARNING_TEMP);
+    }
   }
 
   public Command setVoltage(double voltage) {
