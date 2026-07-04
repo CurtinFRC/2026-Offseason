@@ -132,9 +132,13 @@ public class Robot extends LoggedRobot {
           hopperIndexer =
               new HopperIndexer(
                   new IndexerRollerIOSim(
-                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                      HopperIndexer.indexerRollerID,
+                      InvertedValue.Clockwise_Positive,
+                      HopperIndexer.INDEXER_ROLLER_JKG),
                   new IndexerRollerIOSim(
-                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
+                      HopperIndexer.hopperIndexerRollersID,
+                      InvertedValue.Clockwise_Positive,
+                      HopperIndexer.HOPPER_ROLLERS_JKG));
         }
       }
     } else {

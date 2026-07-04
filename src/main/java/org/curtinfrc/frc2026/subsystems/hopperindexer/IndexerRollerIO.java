@@ -7,7 +7,8 @@ public interface IndexerRollerIO {
   public static class IndexerRollerIOInputs {
     public double positionRotations;
     public double velocityRotationsPerSecond;
-    public double currentAmps;
+    public double statorCurrentAmps;
+    public double supplyCurrentAmps;
     public double appliedVolts;
   }
 
