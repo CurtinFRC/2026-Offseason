@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class ShooterIOSim extends ShooterIOComp {
-  private static final double DT = 0.02;
+  private static final double DT = 0.001
   private static final double SHOOTER_JKG = 0.0035858772; // temp
 
   private final TalonFXSimState motorSim;
