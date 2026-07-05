@@ -25,6 +25,10 @@ import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIOSim;
+import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -43,6 +47,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Drive drive;
   private IntakeArm intakeArm;
+  private Shooter shooter;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -99,6 +104,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
+          shooter = new Shooter(new ShooterIOComp());
         }
         case SIM -> {
           drive =
@@ -109,6 +115,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
           intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
+          shooter = new Shooter(new ShooterIOSim());
         }
       }
     } else {
@@ -120,6 +127,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {});
       intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
+      shooter = new Shooter(new ShooterIO() {});
     }
 
     drive.setDefaultCommand(
@@ -130,6 +138,8 @@ public class Robot extends LoggedRobot {
     intakeArm.setDefaultCommand(intakeArm.intakeDefaultCommand());
     controller.a().whileTrue(intakeArm.setShootingArmPosition());
     controller.x().whileTrue(intakeArm.setRollerVoltage(12));
+
+    controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
   }
 
   /** This function is called periodically during all modes. */
