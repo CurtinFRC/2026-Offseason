@@ -7,6 +7,7 @@
 
 package org.curtinfrc.frc2026;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,6 +19,10 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIO;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIOComp;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIOSim;
@@ -48,6 +53,7 @@ public class Robot extends LoggedRobot {
   private Drive drive;
   private IntakeArm intakeArm;
   private Shooter shooter;
+  private HopperIndexer hopperIndexer;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -105,6 +111,12 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
           shooter = new Shooter(new ShooterIOComp());
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOComp(
+                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                  new IndexerRollerIOComp(
+                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
         }
         case SIM -> {
           drive =
@@ -116,6 +128,16 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.BackRight));
           intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
           shooter = new Shooter(new ShooterIOSim());
+          hopperIndexer =
+              new HopperIndexer(
+                  new IndexerRollerIOSim(
+                      HopperIndexer.indexerRollerID,
+                      InvertedValue.Clockwise_Positive,
+                      HopperIndexer.INDEXER_ROLLER_JKG),
+                  new IndexerRollerIOSim(
+                      HopperIndexer.hopperIndexerRollersID,
+                      InvertedValue.Clockwise_Positive,
+                      HopperIndexer.HOPPER_ROLLERS_JKG));
         }
       }
     } else {
@@ -128,6 +150,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {});
       intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
       shooter = new Shooter(new ShooterIO() {});
+      hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
     }
 
     drive.setDefaultCommand(
@@ -140,6 +163,8 @@ public class Robot extends LoggedRobot {
     controller.x().whileTrue(intakeArm.setRollerVoltage(12));
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
+
+    controller.a().whileTrue(hopperIndexer.setHopperRollerVoltage(12));
   }
 
   /** This function is called periodically during all modes. */
