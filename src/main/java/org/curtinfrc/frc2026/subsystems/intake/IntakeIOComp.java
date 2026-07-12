@@ -21,7 +21,7 @@ import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class IntakeIOComp implements IntakeIO {
 
-  public final TalonFX motor = new TalonFX(46); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(8); // 46
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);

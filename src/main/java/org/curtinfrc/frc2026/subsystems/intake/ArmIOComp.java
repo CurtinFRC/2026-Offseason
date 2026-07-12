@@ -21,7 +21,7 @@ import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class ArmIOComp implements ArmIO {
 
-  public final TalonFX motor = new TalonFX(47); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(7); // 47
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
 

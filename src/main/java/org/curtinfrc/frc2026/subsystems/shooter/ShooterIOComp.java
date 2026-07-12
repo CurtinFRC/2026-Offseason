@@ -26,10 +26,10 @@ import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class ShooterIOComp implements ShooterIO {
   // TODO! update for real robot
-  public static final int ID1 = 10; // BL Shooter
-  public static final int ID2 = 11; // BR Shooter
-  public static final int ID3 = 12; // FL Shooter
-  public static final int ID4 = 13; // FR Shooter
+  public static final int ID1 = 1; // BL Shooter
+  public static final int ID2 = 2; // BR Shooter
+  public static final int ID3 = 3; // FL Shooter
+  public static final int ID4 = 4; // FR Shooter
 
   public static final double GEAR_RATIO = 2.0;
   private static final double KP = 0.0488;

@@ -158,9 +158,9 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-    intakeArm.setDefaultCommand(intakeArm.intakeDefaultCommand());
-    controller.a().whileTrue(intakeArm.setShootingArmPosition());
-    controller.x().whileTrue(intakeArm.setRollerVoltage(12));
+    // intakeArm.setDefaultCommand(intakeArm.intakeDefaultCommand());
+    controller.leftBumper().whileTrue(intakeArm.setShootingArmPosition());
+    controller.rightBumper().whileTrue(intakeArm.setRollerVoltage(12));
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
 
