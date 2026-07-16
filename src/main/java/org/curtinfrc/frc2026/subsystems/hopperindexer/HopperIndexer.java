@@ -25,6 +25,10 @@ public class HopperIndexer extends SubsystemBase {
         indexerRoller.setVoltage(voltage), hopperIndexerRollers.setVoltage(voltage));
   }
 
+  public Command stopAll() {
+    return setAllRollerVoltage(0);
+  }
+
   public Command setIndexerRollerVoltage(double voltage) {
     return indexerRoller.setVoltage(voltage);
   }
