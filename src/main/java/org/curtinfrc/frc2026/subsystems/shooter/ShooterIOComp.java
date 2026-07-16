@@ -5,7 +5,6 @@ import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -31,13 +30,13 @@ public class ShooterIOComp implements ShooterIO {
   public static final int ID3 = 12; // FL Shooter
   public static final int ID4 = 13; // FR Shooter
 
-  public static final double GEAR_RATIO = 2.0;
-  private static final double KP = 0.0488;
+  public static final double GEAR_RATIO = 1.0;
+  private static final double KP = 0.3999;
   private static final double KI = 0.0;
   private static final double KD = 0.0;
   private static final double KS = 0.0;
-  private static final double KV = 1.059;
-  private static final double KA = 0.014;
+  private static final double KV = 0.596;
+  private static final double KA = 0.048;
 
   protected final TalonFX leaderMotor = new TalonFX(ID1);
   protected final TalonFX followerMotor1 = new TalonFX(ID2);
@@ -51,11 +50,7 @@ public class ShooterIOComp implements ShooterIO {
                   .withNeutralMode(NeutralModeValue.Coast)
                   .withInverted(InvertedValue.CounterClockwise_Positive))
           .withCurrentLimits(
-              new CurrentLimitsConfigs().withSupplyCurrentLimit(40).withStatorCurrentLimit(60))
-          .withFeedback(
-              new FeedbackConfigs()
-                  .withSensorToMechanismRatio(GEAR_RATIO)
-                  .withVelocityFilterTimeConstant(0.1))
+              new CurrentLimitsConfigs().withSupplyCurrentLimit(40).withStatorCurrentLimit(90))
           .withSlot0(
               new Slot0Configs().withKP(KP).withKI(KI).withKD(KD).withKS(KS).withKV(KV).withKA(KA));
 
@@ -86,11 +81,10 @@ public class ShooterIOComp implements ShooterIO {
     followerMotor3.setControl(new Follower(ID1, MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, velocity, acceleration, voltage, statorCurrent, supplyCurrent);
-    voltage.setUpdateFrequency(1000);
-    for (int i = 0; i < 4; i++) {
-      motorTemperatures.get(i).setUpdateFrequency(50.0);
-    }
+        50.0, velocity, acceleration, statorCurrent, supplyCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, motorTemperatures.toArray(BaseStatusSignal[]::new));
+    voltage.setUpdateFrequency(1000.0);
 
     leaderMotor.optimizeBusUtilization();
     followerMotor1.optimizeBusUtilization();

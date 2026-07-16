@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
-    Logger.processInputs("shooter", shooterInputs);
+    Logger.processInputs("Shooter", shooterInputs);
 
     for (int motor = 0; motor < 4; motor++) {
       shooterMotorTempAlerts[motor].set(
