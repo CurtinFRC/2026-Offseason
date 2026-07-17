@@ -136,7 +136,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
     autoChooser.addCmd("Test Auto 1", autos::testAuto1);
 
-    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData("AutoChooser", autoChooser);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
