@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HopperIndexer extends SubsystemBase {
-  // TODO! use real IDs
   public static final int indexerRollerID = 5;
   public static final int hopperIndexerRollersID = 6;
 
