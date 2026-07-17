@@ -14,10 +14,18 @@ public class Autos {
   }
 
   public Command testAuto1() {
-    return autoFactory.trajectoryCmd("testAuto1").andThen(drive.runOnce(drive::stop));
+    return trajectoryAuto("testAuto1");
   }
 
   public Command testAutoSafe() {
-    return autoFactory.trajectoryCmd("testAutoSafe").andThen(drive.runOnce(drive::stop));
+    return trajectoryAuto("testAutoSafe");
+  }
+
+  /** Resets odometry to the trajectory's start pose, follows it, then stops. */
+  private Command trajectoryAuto(String trajName) {
+    return autoFactory
+        .resetOdometry(trajName)
+        .andThen(autoFactory.trajectoryCmd(trajName))
+        .andThen(drive.runOnce(drive::stop));
   }
 }
