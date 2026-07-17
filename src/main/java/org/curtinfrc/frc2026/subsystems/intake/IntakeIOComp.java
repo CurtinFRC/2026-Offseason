@@ -51,6 +51,8 @@ public class IntakeIOComp implements IntakeIO {
     // This kP is used by both voltage and velocity control requests
     // Tune on the real robot for optimal performance
     slot0Configs.kP = 1;
+    // Velocity feedforward: 12V / (~58 RPS mechanism free speed). Tune on robot.
+    slot0Configs.kV = 0.21;
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
 
