@@ -20,11 +20,9 @@ import edu.wpi.first.units.measure.Voltage;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class ArmIOComp implements ArmIO {
-
-  public final TalonFX motor = new TalonFX(47); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(7);
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
-
   private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
   public static final double GEAR_RATIO = 1;
@@ -46,11 +44,9 @@ public class ArmIOComp implements ArmIO {
 
   public ArmIOComp() {
     var slot0Configs = new Slot0Configs();
-    slot0Configs.kD = 0;
+    slot0Configs.kP = 1;
     slot0Configs.kI = 0;
-    // This kP is used by both voltage and position control requests
-    // You'll probably want a higher kP for position control, tune on the real robot
-    slot0Configs.kP = 0.01;
+    slot0Configs.kD = 0;
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
     motor.getConfigurator().apply(slot0Configs);

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class ArmIOSim extends ArmIOComp {
   private static final double DT = 0.02;
-  private static final double ARM_JKG = 0.19864895403;
+  private static final double ARM_JKG = 0.036555;
   private static final double ARM_LENGTH_METERS = 0.340313;
   private static final double MIN_ANGLE_RADS = -0.8726646;
   private static final double MAX_ANGLE_RADS = 0.0;

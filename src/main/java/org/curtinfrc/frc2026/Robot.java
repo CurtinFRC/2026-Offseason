@@ -140,10 +140,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getRightX()));
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
-    intakeArm.setDefaultCommand(intakeArm.setRollerVoltage(0));
-    intakeArm.setDefaultCommand(intakeArm.intakeDefaultCommand());
-    controller.a().whileTrue(intakeArm.setShootingArmPosition());
-    controller.x().whileTrue(intakeArm.setRollerVoltage(12));
+    intakeArm.setDefaultCommand(intakeArm.intake());
+    controller.rightBumper().whileTrue(intakeArm.push());
   }
 
   /** This function is called periodically during all modes. */

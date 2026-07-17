@@ -5,6 +5,7 @@ import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,13 +21,12 @@ import edu.wpi.first.units.measure.Voltage;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
 public class IntakeIOComp implements IntakeIO {
-
-  public final TalonFX motor = new TalonFX(46); // TODO: correct ID
+  public final TalonFX motor = new TalonFX(8);
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
-  // This is new — a request that tells the motor to go to a specific position
-  public static final double GEAR_RATIO = 1;
+
+  public static final double GEAR_RATIO = 1.67;
 
   // Signals for roller motor
   private final StatusSignal<Voltage> voltage = motor.getMotorVoltage();
@@ -41,7 +41,8 @@ public class IntakeIOComp implements IntakeIO {
                   .withInverted(InvertedValue.CounterClockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
-              new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
+              new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60))
+          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(GEAR_RATIO));
 
   public IntakeIOComp() {
     var slot0Configs = new Slot0Configs();
@@ -49,7 +50,7 @@ public class IntakeIOComp implements IntakeIO {
     slot0Configs.kI = 0;
     // This kP is used by both voltage and velocity control requests
     // Tune on the real robot for optimal performance
-    slot0Configs.kP = 0.01;
+    slot0Configs.kP = 1;
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
 
