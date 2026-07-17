@@ -37,8 +37,8 @@ public class IntakeIOSim extends IntakeIOComp {
     motorSimModel.update(DT);
 
     intakeSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-    intakeSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations());
-    intakeSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM() / 60.0);
+    intakeSim.setRawRotorPosition(motorSimModel.getAngularPositionRotations() * GEAR_RATIO);
+    intakeSim.setRotorVelocity(motorSimModel.getAngularVelocityRPM() / 60.0 * GEAR_RATIO);
   }
 
   @Override
