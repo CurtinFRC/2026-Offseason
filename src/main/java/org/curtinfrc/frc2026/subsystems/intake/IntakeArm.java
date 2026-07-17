@@ -20,7 +20,7 @@ public class IntakeArm extends SubsystemBase {
   private static final double IDLE_VOLTAGE = 2;
 
   // Arm position for game piece intake (in rotations)
-  private static final double MIN_ARM_POSITION_ROTATIONS = 0.0;
+  private static final double MIN_ARM_POSITION_ROTATIONS = 0.0; // Make LOWER
   private static final double MAX_ARM_POSITION_ROTATIONS = 24.0;
 
   @Override

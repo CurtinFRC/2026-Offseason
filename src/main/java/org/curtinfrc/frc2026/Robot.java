@@ -114,9 +114,10 @@ public class Robot extends LoggedRobot {
           hopperIndexer =
               new HopperIndexer(
                   new IndexerRollerIOComp(
-                      HopperIndexer.indexerRollerID, InvertedValue.Clockwise_Positive),
+                      HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive),
                   new IndexerRollerIOComp(
-                      HopperIndexer.hopperIndexerRollersID, InvertedValue.Clockwise_Positive));
+                      HopperIndexer.hopperIndexerRollersID,
+                      InvertedValue.CounterClockwise_Positive));
         }
         case SIM -> {
           drive =
