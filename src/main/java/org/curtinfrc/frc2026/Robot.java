@@ -12,11 +12,13 @@ import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-
 import org.curtinfrc.frc2026.subsystems.Autos;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
@@ -53,9 +55,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -77,7 +76,7 @@ public class Robot extends LoggedRobot {
       new Alert("Driver controller disconnected!", AlertType.kError);
 
   public Robot() {
-    
+
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -197,23 +196,19 @@ public class Robot extends LoggedRobot {
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    autoFactory = new AutoFactory(
-      drive::getPose,
-      drive::setPose,
-      drive::followTrajectory,
-      true,
-      drive
-      );
+    autoFactory =
+        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
 
-      autos = new Autos(autoFactory, drive);
+    autos = new Autos(autoFactory, drive);
 
-      autoChooser = new AutoChooser();
+    autoChooser = new AutoChooser();
 
-      autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
+    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
+    autoChooser.addCmd("Test Auto 1", autos::testAuto1);
 
-      SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData(autoChooser);
 
-      RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
 
   /** This function is called periodically during all modes. */

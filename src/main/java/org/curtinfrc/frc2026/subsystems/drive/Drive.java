@@ -9,6 +9,7 @@ package org.curtinfrc.frc2026.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -43,8 +44,6 @@ import org.curtinfrc.frc2026.Constants;
 import org.curtinfrc.frc2026.Constants.Mode;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-
-import choreo.trajectory.SwerveSample;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -129,11 +128,13 @@ public class Drive extends SubsystemBase {
   public void followTrajectory(SwerveSample sample) {
     Pose2d pose = getPose();
 
-    ChassisSpeeds speeds = new ChassisSpeeds(
-      sample.vx + xController.calculate(pose.getX(), sample.x),
-      sample.vy + yController.calculate(pose.getY(), sample.x),
-      sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
-    runVelocity(speeds);
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega
+                + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
+    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, pose.getRotation()));
   }
 
   @Override
