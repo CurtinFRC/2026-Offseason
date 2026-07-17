@@ -18,6 +18,13 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIO;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOSim;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOSim;
 import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
@@ -40,6 +47,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Drive drive;
   private Shooter shooter;
+  private IntakeArm intakeArm;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -96,6 +104,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOComp());
+          intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         }
         case SIM -> {
           drive =
@@ -106,6 +115,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOSim());
+          intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
         }
       }
     } else {
@@ -117,6 +127,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {});
       shooter = new Shooter(new ShooterIO() {});
+      intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
     }
 
     drive.setDefaultCommand(
@@ -126,6 +137,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getRightX()));
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
+    intakeArm.setDefaultCommand(intakeArm.intake());
+    controller.rightBumper().whileTrue(intakeArm.push());
   }
 
   /** This function is called periodically during all modes. */
