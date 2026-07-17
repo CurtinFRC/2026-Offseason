@@ -18,11 +18,6 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
-import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
-import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
-import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
-import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
-import org.curtinfrc.frc2026.subsystems.intake.Intake;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIO;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIOComp;
 import org.curtinfrc.frc2026.subsystems.intake.ArmIOSim;
@@ -30,6 +25,10 @@ import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeIOSim;
+import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -48,7 +47,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Drive drive;
   private Shooter shooter;
-  private Intake intake;
   private IntakeArm intakeArm;
 
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -106,7 +104,6 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
           shooter = new Shooter(new ShooterIOComp());
-          intake = new Intake(new IntakeIOComp());
           intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         }
         case SIM -> {
