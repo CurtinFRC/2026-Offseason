@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 public class ArmIOSim extends ArmIOComp {
   private static final double DT = 0.02;
   private static final double ARM_JKG = 0.036555;
+  // Derived: 24 rotor rotations (IntakeArm.MAX_ARM_POSITION_ROTATIONS) over the full
+  // 50 deg arm travel -> 172.8:1. Tune against real hardware measurements.
+  private static final double ARM_GEAR_RATIO = 172.8;
   private static final double ARM_LENGTH_METERS = 0.340313;
   private static final double MIN_ANGLE_RADS = -0.8726646;
   private static final double MAX_ANGLE_RADS = 0.0;
@@ -30,9 +33,9 @@ public class ArmIOSim extends ArmIOComp {
     motorSim.setMotorType(MotorType.KrakenX60);
     motorSimModel =
         new SingleJointedArmSim(
-            LinearSystemId.createDCMotorSystem(motorType, ARM_JKG, GEAR_RATIO),
+            LinearSystemId.createDCMotorSystem(motorType, ARM_JKG, ARM_GEAR_RATIO),
             motorType,
-            GEAR_RATIO,
+            ARM_GEAR_RATIO,
             ARM_LENGTH_METERS,
             MIN_ANGLE_RADS,
             MAX_ANGLE_RADS,
@@ -51,8 +54,10 @@ public class ArmIOSim extends ArmIOComp {
     motorSimModel.update(DT);
 
     double motorRotations =
-        Units.radiansToRotations(motorSimModel.getAngleRads() - STARTING_ANGLE_RADS) * GEAR_RATIO;
-    double motorRPS = Units.radiansToRotations(motorSimModel.getVelocityRadPerSec()) * GEAR_RATIO;
+        Units.radiansToRotations(motorSimModel.getAngleRads() - STARTING_ANGLE_RADS)
+            * ARM_GEAR_RATIO;
+    double motorRPS =
+        Units.radiansToRotations(motorSimModel.getVelocityRadPerSec()) * ARM_GEAR_RATIO;
 
     motorSim.setRawRotorPosition(motorRotations);
     motorSim.setRotorVelocity(motorRPS);
