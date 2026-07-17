@@ -9,8 +9,8 @@ package org.curtinfrc.frc2026;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -18,6 +18,10 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -35,8 +39,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private Shooter shooter;
 
-  private final XboxController controller = new XboxController(0);
+  private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
@@ -90,6 +95,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOTalonFX(TunerConstants.FrontRight),
                   new ModuleIOTalonFX(TunerConstants.BackLeft),
                   new ModuleIOTalonFX(TunerConstants.BackRight));
+          shooter = new Shooter(new ShooterIOComp());
         }
         case SIM -> {
           drive =
@@ -99,6 +105,7 @@ public class Robot extends LoggedRobot {
                   new ModuleIOSim(TunerConstants.FrontRight),
                   new ModuleIOSim(TunerConstants.BackLeft),
                   new ModuleIOSim(TunerConstants.BackRight));
+          shooter = new Shooter(new ShooterIOSim());
         }
       }
     } else {
@@ -109,6 +116,7 @@ public class Robot extends LoggedRobot {
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
+      shooter = new Shooter(new ShooterIO() {});
     }
 
     drive.setDefaultCommand(
@@ -116,6 +124,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
   }
 
   /** This function is called periodically during all modes. */
