@@ -99,59 +99,57 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
-    if (Constants.getMode() != Constants.Mode.REPLAY) {
-      switch (Constants.robotType) {
-        case COMP -> {
-          drive =
-              new Drive(
-                  new GyroIOPigeon2(),
-                  new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                  new ModuleIOTalonFX(TunerConstants.FrontRight),
-                  new ModuleIOTalonFX(TunerConstants.BackLeft),
-                  new ModuleIOTalonFX(TunerConstants.BackRight));
-          shooter = new Shooter(new ShooterIOComp());
-          intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
-          hopperIndexer =
-              new HopperIndexer(
-                  new IndexerRollerIOComp(
-                      HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive),
-                  new IndexerRollerIOComp(
-                      HopperIndexer.hopperIndexerRollersID,
-                      InvertedValue.CounterClockwise_Positive));
-        }
-        case SIM -> {
-          drive =
-              new Drive(
-                  new GyroIO() {},
-                  new ModuleIOSim(TunerConstants.FrontLeft),
-                  new ModuleIOSim(TunerConstants.FrontRight),
-                  new ModuleIOSim(TunerConstants.BackLeft),
-                  new ModuleIOSim(TunerConstants.BackRight));
-          shooter = new Shooter(new ShooterIOSim());
-          intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
-          hopperIndexer =
-              new HopperIndexer(
-                  new IndexerRollerIOSim(
-                      HopperIndexer.indexerRollerID,
-                      InvertedValue.Clockwise_Positive,
-                      HopperIndexer.INDEXER_ROLLER_JKG),
-                  new IndexerRollerIOSim(
-                      HopperIndexer.hopperIndexerRollersID,
-                      InvertedValue.Clockwise_Positive,
-                      HopperIndexer.HOPPER_ROLLERS_JKG));
-        }
+    switch (Constants.getMode()) {
+      case REAL -> {
+        drive =
+            new Drive(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOComp());
+        intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
+        hopperIndexer =
+            new HopperIndexer(
+                new IndexerRollerIOComp(
+                    HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive),
+                new IndexerRollerIOComp(
+                    HopperIndexer.hopperIndexerRollersID, InvertedValue.CounterClockwise_Positive));
       }
-    } else {
-      drive =
-          new Drive(
-              new GyroIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {});
-      shooter = new Shooter(new ShooterIO() {});
-      intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
-      hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
+      case SIM -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOSim());
+        intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
+        hopperIndexer =
+            new HopperIndexer(
+                new IndexerRollerIOSim(
+                    HopperIndexer.indexerRollerID,
+                    InvertedValue.Clockwise_Positive,
+                    HopperIndexer.INDEXER_ROLLER_JKG),
+                new IndexerRollerIOSim(
+                    HopperIndexer.hopperIndexerRollersID,
+                    InvertedValue.Clockwise_Positive,
+                    HopperIndexer.HOPPER_ROLLERS_JKG));
+      }
+      case REPLAY -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        shooter = new Shooter(new ShooterIO() {});
+        intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
+        hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
+      }
     }
 
     drive.setDefaultCommand(
