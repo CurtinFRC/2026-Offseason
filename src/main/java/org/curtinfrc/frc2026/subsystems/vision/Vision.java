@@ -7,13 +7,15 @@
 
 package org.curtinfrc.frc2026.subsystems.vision;
 
-import static org.curtinfrc.frc2026.subsystems.vision.VisionConstants.*;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -21,10 +23,42 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.LinkedList;
 import java.util.List;
-import org.curtinfrc.frc2026.subsystems.vision.VisionIO.PoseObservationType;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
+  public static AprilTagFieldLayout aprilTagLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+  public static record CameraConfig(String name, Transform3d robotToCamera, double stdDev) {}
+
+  public static CameraConfig[] cameraConfigs =
+      new CameraConfig[] {
+        // TODO: get camera transforms
+        new CameraConfig(
+            "Shooter Left",
+            new Transform3d(
+                new Translation3d(0.21424577, .28474389, 0.36319361),
+                new Rotation3d(0, -0.388662903083, 0.174533 + Math.PI)),
+            1.0),
+        new CameraConfig(
+            "Shooter Right",
+            new Transform3d(
+                new Translation3d(0.21503940, -0.271795980, 0.36355173),
+                new Rotation3d(0, -0.388662903083, -0.174533 + Math.PI)),
+            1.0),
+      };
+
+  public static double[] cameraStdDevFactors =
+      new double[] {
+        1.0, // Camera 0
+        1.0 // Camera 1
+      };
+
+  public static double maxAmbiguity = 0.3;
+  public static double maxZError = 0.75;
+  public static double linearStdDevBaseline = 0.02; // Meters
+  public static double angularStdDevBaseline = 0.06; // Radians
+
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
@@ -47,15 +81,6 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
-  }
-
-  /**
-   * Returns the X angle to the best target, which can be used for simple servoing with vision.
-   *
-   * @param cameraIndex The index of the camera to use.
-   */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   @Override
@@ -124,10 +149,6 @@ public class Vision extends SubsystemBase {
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
-        if (observation.type() == PoseObservationType.MEGATAG_2) {
-          linearStdDev *= linearStdDevMegatag2Factor;
-          angularStdDev *= angularStdDevMegatag2Factor;
-        }
         if (cameraIndex < cameraStdDevFactors.length) {
           linearStdDev *= cameraStdDevFactors[cameraIndex];
           angularStdDev *= cameraStdDevFactors[cameraIndex];
