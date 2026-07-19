@@ -167,9 +167,12 @@ public class Robot extends LoggedRobot {
             () -> -controller.getRightX()));
 
     controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
-    intakeArm.setDefaultCommand(intakeArm.intake());
+    // intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
     controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
+    controller
+        .leftBumper()
+        .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
