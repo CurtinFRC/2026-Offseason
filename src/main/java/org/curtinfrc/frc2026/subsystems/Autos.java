@@ -5,11 +5,9 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
 import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
-import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
 import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 
 public class Autos {
@@ -19,7 +17,12 @@ public class Autos {
   private final HopperIndexer hopperIndexer;
   private final Shooter shooter;
 
-  public Autos(AutoFactory autoFactory, Drive drive, IntakeArm intake, HopperIndexer hopperIndexer, Shooter shooter) {
+  public Autos(
+      AutoFactory autoFactory,
+      Drive drive,
+      IntakeArm intake,
+      HopperIndexer hopperIndexer,
+      Shooter shooter) {
     this.autoFactory = autoFactory;
     this.drive = drive;
     this.intake = intake;
@@ -39,7 +42,11 @@ public class Autos {
     AutoRoutine routine = autoFactory.newRoutine("singleSideGreedy");
     AutoTrajectory singleSideGreedy = routine.trajectory("singleSideGreedy");
 
-    routine.active().onTrue(Commands.sequence(intake.intake()));
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                singleSideGreedy.resetOdometry(), intake.intake(), singleSideGreedy.cmd()));
     return routine;
   }
 
