@@ -21,8 +21,8 @@ public class IntakeArm extends SubsystemBase {
   private static final double IDLE_VELOCITY_RPS = 10;
 
   // Arm position for game piece intake (in rotations)
-  private static final double MIN_ARM_POSITION_ROTATIONS = 0.0; // Make LOWER
-  private static final double MAX_ARM_POSITION_ROTATIONS = 24.0;
+  private static final double MIN_ARM_POSITION_ROTATIONS = -28.0; // Make LOWER
+  private static final double MAX_ARM_POSITION_ROTATIONS = -0.1;
 
   @Override
   public void periodic() {
