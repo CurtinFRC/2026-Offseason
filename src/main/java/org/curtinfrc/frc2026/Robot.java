@@ -133,7 +133,7 @@ public class Robot extends LoggedRobot {
     autoChooser = new AutoChooser();
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
-    autoChooser.addCmd("Test Auto 1", autos::testAuto1);
+    autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
