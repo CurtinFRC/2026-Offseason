@@ -58,6 +58,19 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+  // Setting PID values for turning towards Hub.
+  public static final double hubHeadingKP = 10;
+  public static final double hubHeadingKI = 0;
+  private static final double hubHeadingKD = 0.7;
+
+  private static final double ANGLE_MAX_ACCELERATION = 12.608 / DRIVE_BASE_RADIUS - 0.5;
+
+  ProfiledPIDController hubHeadingController =
+      new ProfiledPIDController(
+          hubHeadingKP,
+          hubHeadingKI,
+          hubHeadingKD,
+          new TrapezoidProfile.Constraints(getMaxAngularSpeedRadPerSec(), ANGLE_MAX_ACCELERATION));
 
   private static final double MAX_LINEAR_ACCELERATION = 23.83;
   private static final double MAX_ANGULAR_ACCELERATION =
