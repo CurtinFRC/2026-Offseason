@@ -7,11 +7,12 @@
 
 package org.curtinfrc.frc2026;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import org.curtinfrc.frc2026.subsystems.Autos;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
@@ -21,6 +22,21 @@ import org.curtinfrc.frc2026.subsystems.drive.ModuleIO;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOSim;
 import org.curtinfrc.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.curtinfrc.frc2026.subsystems.drive.TunerConstants;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIO;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOComp;
+import org.curtinfrc.frc2026.subsystems.hopperindexer.IndexerRollerIOSim;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIO;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.ArmIOSim;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIO;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOComp;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeIOSim;
+import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
+import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
 import org.curtinfrc.frc2026.util.AutoChooser;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
@@ -39,11 +55,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private Shooter shooter;
+  private IntakeArm intakeArm;
+  private HopperIndexer hopperIndexer;
   private final AutoFactory autoFactory;
   private final AutoChooser autoChooser;
   private final Autos autos;
 
-  private final XboxController controller = new XboxController(0);
+  private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
@@ -88,35 +107,57 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
-    if (Constants.getMode() != Constants.Mode.REPLAY) {
-      switch (Constants.robotType) {
-        case COMP -> {
-          drive =
-              new Drive(
-                  new GyroIOPigeon2(),
-                  new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                  new ModuleIOTalonFX(TunerConstants.FrontRight),
-                  new ModuleIOTalonFX(TunerConstants.BackLeft),
-                  new ModuleIOTalonFX(TunerConstants.BackRight));
-        }
-        case SIM -> {
-          drive =
-              new Drive(
-                  new GyroIO() {},
-                  new ModuleIOSim(TunerConstants.FrontLeft),
-                  new ModuleIOSim(TunerConstants.FrontRight),
-                  new ModuleIOSim(TunerConstants.BackLeft),
-                  new ModuleIOSim(TunerConstants.BackRight));
-        }
+    switch (Constants.getMode()) {
+      case REAL -> {
+        drive =
+            new Drive(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOComp());
+        intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
+        hopperIndexer =
+            new HopperIndexer(
+                new IndexerRollerIOComp(
+                    HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive),
+                new IndexerRollerIOComp(
+                    HopperIndexer.hopperIndexerRollersID, InvertedValue.CounterClockwise_Positive));
       }
-    } else {
-      drive =
-          new Drive(
-              new GyroIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {});
+      case SIM -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
+        shooter = new Shooter(new ShooterIOSim());
+        intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
+        hopperIndexer =
+            new HopperIndexer(
+                new IndexerRollerIOSim(
+                    HopperIndexer.indexerRollerID,
+                    InvertedValue.Clockwise_Positive,
+                    HopperIndexer.INDEXER_ROLLER_JKG),
+                new IndexerRollerIOSim(
+                    HopperIndexer.hopperIndexerRollersID,
+                    InvertedValue.Clockwise_Positive,
+                    HopperIndexer.HOPPER_ROLLERS_JKG));
+      }
+      case REPLAY -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        shooter = new Shooter(new ShooterIO() {});
+        intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
+        hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
+      }
     }
 
     drive.setDefaultCommand(
@@ -124,6 +165,11 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
+    intakeArm.setDefaultCommand(intakeArm.intake());
+    controller.rightBumper().whileTrue(intakeArm.push());
+    controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);

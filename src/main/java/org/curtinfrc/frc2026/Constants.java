@@ -3,31 +3,18 @@ package org.curtinfrc.frc2026;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
-  public static final RobotType robotType = RobotType.COMP;
   public static boolean tuningMode = false;
 
-  public static final Mode getMode() {
-    return switch (robotType) {
-      case COMP -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
-      case SIM -> Mode.SIM;
-    };
+  /** Mode used when running on the desktop: SIM for physics sim, REPLAY for log replay. */
+  public static final Mode simMode = Mode.SIM;
+
+  public static Mode getMode() {
+    return RobotBase.isReal() ? Mode.REAL : simMode;
   }
 
   public static enum Mode {
     REAL,
     SIM,
     REPLAY;
-  }
-
-  public static enum RobotType {
-    COMP,
-    SIM;
-  }
-
-  public static void main(String... args) {
-    if (robotType == RobotType.SIM) {
-      System.out.println("Error invalid robot type selected for deploy: SIM");
-      System.exit(1);
-    }
   }
 }
