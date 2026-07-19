@@ -32,9 +32,7 @@ public class TunerConstants {
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   private static final Slot0Configs driveGains =
-      // Wheel-rotation units: ModuleIOTalonFX sets SensorToMechanismRatio to the 7.03125 drive
-      // gearing, so rotor gains (kP 0.1, kV 0.124) must be scaled by it. Refine kS/kV with SysId.
-      new Slot0Configs().withKP(0.7).withKI(0).withKD(0).withKS(0).withKV(0.872);
+      new Slot0Configs().withKP(0.1).withKI(0).withKD(0).withKS(0).withKV(0.124);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
