@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.curtinfrc.frc2026.Constants;
 import org.curtinfrc.frc2026.Constants.Mode;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -54,19 +55,20 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-  // Setting PID values for turning towards Hub.
-  public static final double hubHeadingKP = 10;
-  public static final double hubHeadingKI = 0;
-  private static final double hubHeadingKD = 0.7;
 
-  private static final double ANGLE_MAX_ACCELERATION = 12.608 / DRIVE_BASE_RADIUS - 0.5;
-
-  ProfiledPIDController hubHeadingController =
+  private static final double MAX_LINEAR_ACCELERATION = 23.83;
+  private static final double MAX_ANGULAR_ACCELERATION =
+      MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS - 0.5;
+  public static final double rotationKP = 10;
+  public static final double rotationKI = 0;
+  private static final double rotationKD = 0.7;
+  ProfiledPIDController rotationPIDController =
       new ProfiledPIDController(
-          hubHeadingKP,
-          hubHeadingKI,
-          hubHeadingKD,
-          new TrapezoidProfile.Constraints(getMaxAngularSpeedRadPerSec(), ANGLE_MAX_ACCELERATION));
+          rotationKP,
+          rotationKI,
+          rotationKD,
+          new TrapezoidProfile.Constraints(
+              getMaxAngularSpeedRadPerSec(), MAX_ANGULAR_ACCELERATION));
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -99,6 +101,7 @@ public class Drive extends SubsystemBase {
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+    rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -272,6 +275,37 @@ public class Drive extends SubsystemBase {
         });
   }
 
+  public Command locationAlignedJoystickDrive(
+      DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Translation2d> targetLocation) {
+    return run(
+        () -> {
+          Translation2d linearVelocity =
+              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+          double angularVelocity = angularVelocityToLocation(targetLocation);
+
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
+                  angularVelocity);
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+          runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds, isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()));
+        });
+  }
+
+  public double angularVelocityToLocation(Supplier<Translation2d> locationSupplier) {
+    Pose2d robotPose = getPose();
+    double targetAngle =
+        locationSupplier.get().minus(robotPose.getTranslation()).getAngle().getRadians();
+    double angularVelocity =
+        rotationPIDController.calculate(robotPose.getRotation().getRadians(), targetAngle);
+    return angularVelocity;
+  }
+
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0))
@@ -380,8 +414,7 @@ public class Drive extends SubsystemBase {
               Pose2d currentPosition = getPose();
               double robotAngle = MathUtil.angleModulus(currentPosition.getRotation().getRadians());
               Logger.recordOutput("Robot Angle", robotAngle);
-              hubHeadingController.reset(robotAngle);
-              hubHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+              rotationPIDController.reset(robotAngle);
               if (robotAngle >= -Math.PI / 2 && robotAngle <= Math.PI / 2) {
                 Goal = Rotation2d.kZero;
               } else {
@@ -395,7 +428,8 @@ public class Drive extends SubsystemBase {
                   double robotAngle =
                       MathUtil.angleModulus(currentPosition.getRotation().getRadians());
                   Logger.recordOutput("Robot Angle", robotAngle);
-                  double angleSpeed = hubHeadingController.calculate(robotAngle, Goal.getRadians());
+                  double angleSpeed =
+                      rotationPIDController.calculate(robotAngle, Goal.getRadians());
                   Logger.recordOutput("Angle Speed", angleSpeed);
                   Logger.recordOutput("Goal", Goal);
 

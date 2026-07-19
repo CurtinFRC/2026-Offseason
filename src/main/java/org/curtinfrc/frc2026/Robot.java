@@ -9,6 +9,7 @@ package org.curtinfrc.frc2026;
 
 import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 
+import choreo.util.ChoreoAllianceFlipUtil;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -40,6 +41,7 @@ import org.curtinfrc.frc2026.subsystems.vision.Vision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIO;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.curtinfrc.frc2026.util.FieldConstants;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -183,9 +185,21 @@ public class Robot extends LoggedRobot {
     // intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
     controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
+
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+    controller
+        .x()
+        .whileTrue(
+            drive.locationAlignedJoystickDrive(
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () ->
+                    ChoreoAllianceFlipUtil.shouldFlip()
+                        ? ChoreoAllianceFlipUtil.flip(
+                            FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                        : FieldConstants.Hub.topCenterPoint.toTranslation2d()));
   }
 
   /** This function is called periodically during all modes. */
