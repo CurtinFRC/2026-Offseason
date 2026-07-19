@@ -12,10 +12,7 @@ import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -46,6 +43,7 @@ import org.curtinfrc.frc2026.subsystems.vision.Vision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIO;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.curtinfrc.frc2026.util.AutoChooser;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -205,8 +203,6 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
     autoChooser.addCmd("Test Auto 1", autos::testAuto1);
-
-    SmartDashboard.putData("AutoChooser", autoChooser);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
