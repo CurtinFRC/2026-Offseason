@@ -378,9 +378,10 @@ public class Drive extends SubsystemBase {
     return runOnce(
             () -> {
               Pose2d currentPosition = getPose();
-              double robotAngle = currentPosition.getRotation().getRadians();
+              double robotAngle = MathUtil.angleModulus(currentPosition.getRotation().getRadians());
               Logger.recordOutput("Robot Angle", robotAngle);
               hubHeadingController.reset(robotAngle);
+              hubHeadingController.enableContinuousInput(-Math.PI, Math.PI);
               if (robotAngle >= -Math.PI / 2 && robotAngle <= Math.PI / 2) {
                 Goal = Rotation2d.kZero;
               } else {
