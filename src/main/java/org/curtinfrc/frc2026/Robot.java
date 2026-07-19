@@ -7,8 +7,8 @@
 
 package org.curtinfrc.frc2026;
 
-import com.ctre.phoenix6.signals.InvertedValue;
 import choreo.auto.AutoFactory;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -174,12 +174,14 @@ public class Robot extends LoggedRobot {
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
 
-    autos = new Autos(autoFactory, drive);
+    autos = new Autos(autoFactory, drive, intakeArm, hopperIndexer, shooter);
 
     autoChooser = new AutoChooser();
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
     autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
+
+    autoChooser.addRoutine("Single Side Greedy Routine", autos::singleSideGreedyRoutine);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
