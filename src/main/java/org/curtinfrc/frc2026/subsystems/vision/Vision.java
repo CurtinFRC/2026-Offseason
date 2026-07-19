@@ -48,12 +48,6 @@ public class Vision extends SubsystemBase {
             1.0),
       };
 
-  public static double[] cameraStdDevFactors =
-      new double[] {
-        1.0, // Camera 0
-        1.0 // Camera 1
-      };
-
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
   public static double linearStdDevBaseline = 0.02; // Meters
@@ -149,9 +143,9 @@ public class Vision extends SubsystemBase {
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
-        if (cameraIndex < cameraStdDevFactors.length) {
-          linearStdDev *= cameraStdDevFactors[cameraIndex];
-          angularStdDev *= cameraStdDevFactors[cameraIndex];
+        if (cameraIndex < cameraConfigs.length) {
+          linearStdDev *= cameraConfigs[cameraIndex].stdDev;
+          angularStdDev *= cameraConfigs[cameraIndex].stdDev;
         }
 
         // Send vision observation

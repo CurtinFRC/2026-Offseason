@@ -144,7 +144,7 @@ public class Robot extends LoggedRobot {
                 new VisionIOPhotonVisionSim(
                     cameraConfigs[0].name(), cameraConfigs[0].robotToCamera(), drive::getPose),
                 new VisionIOPhotonVisionSim(
-                    cameraConfigs[0].name(), cameraConfigs[1].robotToCamera(), drive::getPose));
+                    cameraConfigs[1].name(), cameraConfigs[1].robotToCamera(), drive::getPose));
         shooter = new Shooter(new ShooterIOSim());
         intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
         hopperIndexer =
