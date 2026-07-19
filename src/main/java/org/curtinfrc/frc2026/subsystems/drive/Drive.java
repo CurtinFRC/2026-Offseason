@@ -348,7 +348,8 @@ public class Drive extends SubsystemBase {
   public double angularVelocityToLocation(Supplier<Translation2d> locationSupplier) {
     double angularVelocity =
         rotationPIDController.calculate(
-            getPose().getRotation().getRadians(), angleToLocation(locationSupplier).getRadians());
+            getPose().getRotation().getRadians(),
+            angleToLocation(locationSupplier).rotateBy(Rotation2d.k180deg).getRadians());
     return angularVelocity;
   }
 

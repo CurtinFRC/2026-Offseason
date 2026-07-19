@@ -10,7 +10,7 @@ public class Shooter extends SubsystemBase {
   public static final double ROLLER_DIAMETER = 0.082;
   public static final double MOTOR_WARNING_TEMP = 60;
 
-  public static final double OPTIMAL_SHOOTING_DISTANCE = 3.0; // TODO! tune this value
+  public static final double OPTIMAL_SHOOTING_DISTANCE = 3.5; // TODO! tune this value
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
