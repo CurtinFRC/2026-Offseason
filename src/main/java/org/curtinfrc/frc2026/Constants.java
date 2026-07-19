@@ -3,7 +3,7 @@ package org.curtinfrc.frc2026;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
-  public static boolean tuningMode = false;
+  public static final boolean tuningMode = true;
 
   /** Mode used when running on the desktop: SIM for physics sim, REPLAY for log replay. */
   public static final Mode simMode = Mode.SIM;
