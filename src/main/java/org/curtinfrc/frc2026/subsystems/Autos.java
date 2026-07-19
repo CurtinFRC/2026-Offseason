@@ -13,8 +13,8 @@ public class Autos {
     this.drive = drive;
   }
 
-  public Command testAuto1() {
-    return trajectoryAuto("testAuto1");
+  public Command singleSideGreedy() {
+    return trajectoryAuto("singleSideGreedy");
   }
 
   public Command testAutoSafe() {
