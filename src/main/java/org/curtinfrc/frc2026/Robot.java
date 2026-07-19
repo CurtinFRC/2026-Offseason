@@ -189,17 +189,7 @@ public class Robot extends LoggedRobot {
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    controller
-        .x()
-        .whileTrue(
-            drive.locationAlignedJoystickDrive(
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () ->
-                    ChoreoAllianceFlipUtil.shouldFlip()
-                        ? ChoreoAllianceFlipUtil.flip(
-                            FieldConstants.Hub.topCenterPoint.toTranslation2d())
-                        : FieldConstants.Hub.topCenterPoint.toTranslation2d()));
+    controller.x().whileTrue(drive.hubAlignedJoyStickDrive());
   }
 
   /** This function is called periodically during all modes. */
