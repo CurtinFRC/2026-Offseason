@@ -12,7 +12,9 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -51,6 +54,19 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+  // Setting PID values for turning towards Hub.
+  public static final double hubHeadingKP = 10;
+  public static final double hubHeadingKI = 0;
+  private static final double hubHeadingKD = 0.7;
+
+  private static final double ANGLE_MAX_ACCELERATION = 12.608 / DRIVE_BASE_RADIUS - 0.5;
+
+  ProfiledPIDController hubHeadingController =
+      new ProfiledPIDController(
+          hubHeadingKP,
+          hubHeadingKI,
+          hubHeadingKD,
+          new TrapezoidProfile.Constraints(getMaxAngularSpeedRadPerSec(), ANGLE_MAX_ACCELERATION));
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -354,5 +370,51 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  public Rotation2d Goal = Rotation2d.kZero;
+
+  public Command TrenchAlign(DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+    return runOnce(
+            () -> {
+              Pose2d currentPosition = getPose();
+              double robotAngle = MathUtil.angleModulus(currentPosition.getRotation().getRadians());
+              Logger.recordOutput("Robot Angle", robotAngle);
+              hubHeadingController.reset(robotAngle);
+              hubHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+              if (robotAngle >= -Math.PI / 2 && robotAngle <= Math.PI / 2) {
+                Goal = Rotation2d.kZero;
+              } else {
+                Goal = Rotation2d.k180deg;
+              }
+            })
+        .andThen(
+            run(
+                () -> {
+                  Pose2d currentPosition = getPose();
+                  double robotAngle =
+                      MathUtil.angleModulus(currentPosition.getRotation().getRadians());
+                  Logger.recordOutput("Robot Angle", robotAngle);
+                  double angleSpeed = hubHeadingController.calculate(robotAngle, Goal.getRadians());
+                  Logger.recordOutput("Angle Speed", angleSpeed);
+                  Logger.recordOutput("Goal", Goal);
+
+                  Translation2d linearVelocity =
+                      getLinearVelocityFromJoysticks(
+                          xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+                  ChassisSpeeds speeds =
+                      new ChassisSpeeds(
+                          linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+                          linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
+                          angleSpeed);
+                  boolean isFlipped =
+                      DriverStation.getAlliance().isPresent()
+                          && DriverStation.getAlliance().get() == Alliance.Red;
+                  runVelocity(
+                      ChassisSpeeds.fromFieldRelativeSpeeds(
+                          speeds,
+                          isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()));
+                }));
   }
 }
