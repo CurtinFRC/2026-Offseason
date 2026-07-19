@@ -33,18 +33,17 @@ public class Vision extends SubsystemBase {
 
   public static CameraConfig[] cameraConfigs =
       new CameraConfig[] {
-        // TODO: get camera transforms
         new CameraConfig(
-            "Shooter Left",
+            "shooterLeft",
             new Transform3d(
-                new Translation3d(0.21424577, .28474389, 0.36319361),
-                new Rotation3d(0, -0.388662903083, 0.174533 + Math.PI)),
+                new Translation3d(-0.314895, 0.251775, 0.209521),
+                new Rotation3d(0, 0.872665, 0)),
             1.0),
         new CameraConfig(
-            "Shooter Right",
+            "shooterRight",
             new Transform3d(
-                new Translation3d(0.21503940, -0.271795980, 0.36355173),
-                new Rotation3d(0, -0.388662903083, -0.174533 + Math.PI)),
+                new Translation3d(-0.320732, -0.251774, 0.214223),
+                new Rotation3d(0, 0.872665, 0)),
             1.0),
       };
 
