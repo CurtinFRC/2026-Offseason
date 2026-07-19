@@ -51,14 +51,16 @@ public class IntakeIOComp implements IntakeIO {
     // This kP is used by both voltage and velocity control requests
     // Tune on the real robot for optimal performance
     slot0Configs.kP = 1;
+    // Velocity feedforward: 12V / (~58 RPS mechanism free speed). Tune on robot.
+    slot0Configs.kV = 0.21;
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
 
     motor.getConfigurator().apply(slot0Configs);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, voltage, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, position, current);
     motor.optimizeBusUtilization();
-    PhoenixUtil.registerSignals(false, voltage, velocity, voltage, current);
+    PhoenixUtil.registerSignals(false, voltage, velocity, position, current);
   }
 
   @Override

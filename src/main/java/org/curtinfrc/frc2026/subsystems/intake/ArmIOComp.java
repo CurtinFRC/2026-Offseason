@@ -51,9 +51,9 @@ public class ArmIOComp implements ArmIO {
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
     motor.getConfigurator().apply(slot0Configs);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, voltage, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, position, current);
     motor.optimizeBusUtilization();
-    PhoenixUtil.registerSignals(false, voltage, velocity, voltage, current);
+    PhoenixUtil.registerSignals(false, voltage, velocity, position, current);
   }
 
   @Override

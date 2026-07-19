@@ -15,9 +15,10 @@ public class IntakeArm extends SubsystemBase {
     this.armIO = armIO;
   }
 
-  // These variables are used for the voltage and velocity
-  private static final double INTAKE_VOLTAGE = 8;
-  private static final double IDLE_VOLTAGE = 2;
+  // Roller velocity setpoints in mechanism rotations/sec.
+  // Derived from the previous 8V/2V open-loop values (~58 RPS free speed at 12V); tune on robot.
+  private static final double INTAKE_VELOCITY_RPS = 40;
+  private static final double IDLE_VELOCITY_RPS = 10;
 
   // Arm position for game piece intake (in rotations)
   private static final double MIN_ARM_POSITION_ROTATIONS = 0.0; // Make LOWER
@@ -40,7 +41,7 @@ public class IntakeArm extends SubsystemBase {
     return run(
         () -> {
           armIO.setArmPosition(MAX_ARM_POSITION_ROTATIONS);
-          intakeIO.setRollerVoltage(IDLE_VOLTAGE);
+          intakeIO.setRollerVelocity(IDLE_VELOCITY_RPS);
         });
   }
 
@@ -48,7 +49,7 @@ public class IntakeArm extends SubsystemBase {
     return run(
         () -> {
           armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS);
-          intakeIO.setRollerVoltage(INTAKE_VOLTAGE);
+          intakeIO.setRollerVelocity(INTAKE_VELOCITY_RPS);
         });
   }
 }
