@@ -46,7 +46,8 @@ public class Autos {
         .active()
         .onTrue(
             Commands.sequence(
-                singleSideGreedy.resetOdometry(), intake.intake(), singleSideGreedy.cmd()));
+                singleSideGreedy.resetOdometry(),
+                singleSideGreedy.cmd().deadlineFor(intake.intake())));
     return routine;
   }
 
