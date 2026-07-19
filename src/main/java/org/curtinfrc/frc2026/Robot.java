@@ -189,7 +189,7 @@ public class Robot extends LoggedRobot {
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    controller.x().whileTrue(drive.hubAlignedJoyStickDrive());
+    controller.rightTrigger().whileTrue(drive.alignToHub());
   }
 
   /** This function is called periodically during all modes. */

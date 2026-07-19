@@ -312,7 +312,7 @@ public class Drive extends SubsystemBase {
         });
   }
 
-  public Command hubAlignedJoyStickDrive() {
+  public Command alignToHub() {
     return run(
         () -> {
           Translation2d hubLocation =
