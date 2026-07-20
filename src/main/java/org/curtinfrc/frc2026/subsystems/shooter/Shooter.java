@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -14,6 +15,18 @@ public class Shooter extends SubsystemBase {
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
+
+  private double targetVelocityRotationsPerSecond = 0;
+  private double velocityToleranceRotationsPerSecond = 1;
+  private double maxAccelerationRotationsPerSecondPerSecond = 5;
+
+  public final Trigger readyToIndex =
+      new Trigger(
+          () ->
+              (Math.abs(shooterInputs.velocityRotationsPerSecond - targetVelocityRotationsPerSecond)
+                      <= velocityToleranceRotationsPerSecond
+                  && Math.abs(shooterInputs.accelerationRotationsPerSecondPerSecond)
+                      <= maxAccelerationRotationsPerSecondPerSecond));
 
   private final Alert[] shooterMotorTempAlerts = new Alert[4];
 
@@ -36,6 +49,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("Shooter", shooterInputs);
+    Logger.recordOutput("Shooter/readyToShoot", readyToIndex.getAsBoolean());
 
     for (int motor = 0; motor < 4; motor++) {
       shooterMotorTempAlerts[motor].set(
@@ -48,6 +62,10 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command setAngularVelocity(double angularVelocityRotationsPerSecond) {
-    return run(() -> shooterIO.setAngularVelocity(angularVelocityRotationsPerSecond));
+    return run(
+        () -> {
+          shooterIO.setAngularVelocity(angularVelocityRotationsPerSecond);
+          targetVelocityRotationsPerSecond = angularVelocityRotationsPerSecond;
+        });
   }
 }
