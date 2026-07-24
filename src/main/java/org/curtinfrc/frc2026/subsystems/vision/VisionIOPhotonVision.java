@@ -44,7 +44,7 @@ public class VisionIOPhotonVision implements VisionIO {
     for (var result : camera.getAllUnreadResults()) {
       Optional<EstimatedRobotPose> poseEstimate = poseEstimator.estimateCoprocMultiTagPose(result);
       poseEstimate = poseEstimator.estimateCoprocMultiTagPose(result);
-      if (poseObservations.isEmpty()) {
+      if (poseEstimate.isEmpty()) {
         poseEstimate = poseEstimator.estimateLowestAmbiguityPose(result);
       }
 
