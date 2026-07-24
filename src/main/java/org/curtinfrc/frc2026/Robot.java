@@ -120,7 +120,7 @@ public class Robot extends LoggedRobot {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(cameraConfigs[0].name(), cameraConfigs[0].robotToCamera()),
                 new VisionIOPhotonVision(
-                    cameraConfigs[0].name(), cameraConfigs[1].robotToCamera()));
+                    cameraConfigs[1].name(), cameraConfigs[1].robotToCamera()));
         shooter = new Shooter(new ShooterIOComp());
         intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         hopperIndexer =
