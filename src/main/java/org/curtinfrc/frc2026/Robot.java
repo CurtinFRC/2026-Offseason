@@ -187,7 +187,7 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.b().whileTrue(shooter.setAngularVelocity(6)).onFalse(shooter.setVoltage(0));
+    controller.b().whileTrue(shooter.setAngularVelocity(30)).onFalse(shooter.setVoltage(0));
     // intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
     controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
@@ -197,10 +197,10 @@ public class Robot extends LoggedRobot {
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
     controller.rightTrigger().whileTrue(drive.alignToHub());
 
-    shooter
-        .readyToIndex
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
+    // shooter
+    //     .readyToIndex
+    //     .onTrue(hopperIndexer.setAllRollerVoltage(6))
+    //     .onFalse(hopperIndexer.stopAll());
   }
 
   /** This function is called periodically during all modes. */

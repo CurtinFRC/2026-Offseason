@@ -5,6 +5,7 @@ import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -31,11 +32,11 @@ public class ShooterIOComp implements ShooterIO {
   public static final int ID4 = 4; // FR Shooter
 
   public static final double GEAR_RATIO = 1.0;
-  private static final double KP = 0.3999;
+  private static final double KP = 0;
   private static final double KI = 0.0;
   private static final double KD = 0.0;
-  private static final double KS = 0.0;
-  private static final double KV = 0.1232;
+  private static final double KS = 0.35;
+  private static final double KV = 0.128;
   private static final double KA = 0.00992;
 
   private static final LoggedTunableNumber tunableKP = new LoggedTunableNumber("Shooter/kP", KP);
@@ -77,6 +78,7 @@ public class ShooterIOComp implements ShooterIO {
                   .withInverted(InvertedValue.CounterClockwise_Positive))
           .withCurrentLimits(
               new CurrentLimitsConfigs().withSupplyCurrentLimit(40).withStatorCurrentLimit(90))
+          .withFeedback(new FeedbackConfigs().withVelocityFilterTimeConstant(0.02))
           .withSlot0(
               new Slot0Configs().withKP(KP).withKI(KI).withKD(KD).withKS(KS).withKV(KV).withKA(KA));
 

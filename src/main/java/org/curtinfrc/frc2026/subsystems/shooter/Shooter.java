@@ -50,9 +50,13 @@ public class Shooter extends SubsystemBase {
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("Shooter", shooterInputs);
     Logger.recordOutput("Shooter/readyToShoot", readyToIndex.getAsBoolean());
-    Logger.recordOutput("Shooter/targetVelocityRotationsPerSecond", targetVelocityRotationsPerSecond);
-    Logger.recordOutput("Shooter/velocityToleranceRotationsPerSecond", velocityToleranceRotationsPerSecond);
-    Logger.recordOutput("Shooter/maxAccelerationRotationsPerSecondPerSecond", maxAccelerationRotationsPerSecondPerSecond);
+    Logger.recordOutput(
+        "Shooter/targetVelocityRotationsPerSecond", targetVelocityRotationsPerSecond);
+    Logger.recordOutput(
+        "Shooter/velocityToleranceRotationsPerSecond", velocityToleranceRotationsPerSecond);
+    Logger.recordOutput(
+        "Shooter/maxAccelerationRotationsPerSecondPerSecond",
+        maxAccelerationRotationsPerSecondPerSecond);
 
     for (int motor = 0; motor < 4; motor++) {
       shooterMotorTempAlerts[motor].set(

@@ -32,7 +32,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withNeutralMode(NeutralModeValue.Coast)
                     .withInverted(invertedValue))
             .withCurrentLimits(
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
