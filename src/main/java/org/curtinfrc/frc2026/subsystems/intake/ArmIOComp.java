@@ -24,6 +24,7 @@ public class ArmIOComp implements ArmIO {
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
+  private final PositionVoltage positionShootRequest = new PositionVoltage(0).withSlot(1);
 
   public static final double GEAR_RATIO = 1;
 
@@ -40,7 +41,7 @@ public class ArmIOComp implements ArmIO {
                   .withInverted(InvertedValue.CounterClockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
-              new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
+              new CurrentLimitsConfigs().withSupplyCurrentLimit(15).withStatorCurrentLimit(30));
 
   public ArmIOComp() {
     var slot0Configs = new Slot0Configs();
