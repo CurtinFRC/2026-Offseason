@@ -32,7 +32,7 @@ public class ShooterIOComp implements ShooterIO {
   public static final int ID4 = 4; // FR Shooter
 
   public static final double GEAR_RATIO = 1.0;
-  private static final double KP = 0;
+  private static final double KP = 2;
   private static final double KI = 0.0;
   private static final double KD = 0.0;
   private static final double KS = 0.35;

@@ -188,19 +188,20 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
-    intakeArm.setDefaultCommand(intakeArm.intake());
     shooter.setDefaultCommand(shooter.setVoltage(0));
 
     controller
         .rightBumper()
         .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
-    // controller.leftBumper().onTrue(intakeArm.intake());
+    controller.leftBumper().onTrue(intakeArm.intake());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter.readyToShoot.and(drive.readyToShoot)
+    shooter
+        .readyToShoot
+        .and(drive.readyToShoot)
         .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onTrue(intakeArm.push())
+        .onTrue(intakeArm.intake().withTimeout(2).andThen(intakeArm.push()))
         .onFalse(hopperIndexer.stopAll());
   }
 
