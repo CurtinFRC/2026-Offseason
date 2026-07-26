@@ -9,10 +9,10 @@ package org.curtinfrc.frc2026;
 
 import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 
+import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -181,6 +181,16 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    autoFactory =
+        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
+    autos = new Autos(autoFactory, drive, intakeArm, hopperIndexer, shooter);
+
+    autoChooser = new AutoChooser();
+    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
+    autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
+    autoChooser.addRoutine("Single Side Greedy Routine", autos::singleSideGreedyRoutine);
+    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
     drive.setDefaultCommand(
         drive.joystickDrive(
             () -> -controller.getLeftY(),
@@ -194,19 +204,6 @@ public class Robot extends LoggedRobot {
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    autoFactory =
-        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
-
-    autos = new Autos(autoFactory, drive, intakeArm, hopperIndexer, shooter);
-
-    autoChooser = new AutoChooser();
-
-    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
-    autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
-
-    autoChooser.addRoutine("Single Side Greedy Routine", autos::singleSideGreedyRoutine);
-
-    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
 
   /** This function is called periodically during all modes. */
