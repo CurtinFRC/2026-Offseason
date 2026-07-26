@@ -197,10 +197,10 @@ public class Robot extends LoggedRobot {
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
     controller.rightTrigger().whileTrue(drive.alignToHub());
 
-    // shooter
-    //     .readyToIndex
-    //     .onTrue(hopperIndexer.setAllRollerVoltage(6))
-    //     .onFalse(hopperIndexer.stopAll());
+    shooter
+        .readyToIndex
+        .onTrue(hopperIndexer.setAllRollerVoltage(6))
+        .onFalse(hopperIndexer.stopAll());
   }
 
   /** This function is called periodically during all modes. */
