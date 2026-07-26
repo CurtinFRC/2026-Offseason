@@ -183,9 +183,11 @@ public class Robot extends LoggedRobot {
     // intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
     controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
+
     controller
         .leftBumper()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+    controller.rightTrigger().whileTrue(drive.alignToHub());
   }
 
   /** This function is called periodically during all modes. */
