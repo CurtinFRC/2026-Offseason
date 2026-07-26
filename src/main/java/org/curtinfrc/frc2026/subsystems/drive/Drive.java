@@ -495,7 +495,7 @@ public class Drive extends SubsystemBase {
                       new ChassisSpeeds(
                           linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
                           linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
-                          angleSpeed);
+                          -angleSpeed);
                   boolean isFlipped =
                       DriverStation.getAlliance().isPresent()
                           && DriverStation.getAlliance().get() == Alliance.Red;
