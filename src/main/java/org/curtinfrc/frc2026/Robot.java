@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
@@ -187,21 +188,20 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
+    intakeArm.setDefaultCommand(intakeArm.intake());
+    shooter.setDefaultCommand(shooter.setVoltage(0));
+
     controller
         .rightBumper()
-        .whileTrue(shooter.setAngularVelocity(30))
-        .onFalse(shooter.setVoltage(0));
-    // intakeArm.setDefaultCommand(intakeArm.intake());
-    controller.leftBumper().onTrue(intakeArm.intake());
-    controller.rightTrigger().whileTrue(drive.alignToHub());
+        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
+    // controller.leftBumper().onTrue(intakeArm.intake());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter
-        .readyToIndex
+    shooter.readyToShoot.and(drive.readyToShoot)
         .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll())
-        .onTrue(intakeArm.push());
+        .onTrue(intakeArm.push())
+        .onFalse(hopperIndexer.stopAll());
   }
 
   /** This function is called periodically during all modes. */
