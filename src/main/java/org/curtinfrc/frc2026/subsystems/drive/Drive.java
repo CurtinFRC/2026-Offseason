@@ -63,7 +63,7 @@ public class Drive extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION =
       MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS - 0.5;
 
-  public static final double rotationKP = 10;
+  public static final double rotationKP = 1;
   public static final double rotationKI = 0;
   private static final double rotationKD = 0.7;
   ProfiledPIDController rotationPIDController =
@@ -141,6 +141,7 @@ public class Drive extends SubsystemBase {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
+
     for (var module : modules) {
       module.periodic();
     }
@@ -322,6 +323,8 @@ public class Drive extends SubsystemBase {
           double angularVelocity = angularVelocityToLocation(() -> hubLocation);
 
           double distanceFromHub = getPose().getTranslation().getDistance(hubLocation);
+          Logger.recordOutput("Drive/DistanceFromHub", distanceFromHub);
+          Logger.recordOutput("Drive/DistanceTarget", Shooter.OPTIMAL_SHOOTING_DISTANCE);
           Translation2d linearVelocity =
               new Translation2d(
                   positionPIDController.calculate(
@@ -329,7 +332,7 @@ public class Drive extends SubsystemBase {
                   angleToLocation(() -> hubLocation));
 
           ChassisSpeeds speeds =
-              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), angularVelocity);
+              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
@@ -342,14 +345,15 @@ public class Drive extends SubsystemBase {
   public Rotation2d angleToLocation(Supplier<Translation2d> locationSupplier) {
     Pose2d robotPose = getPose();
     Rotation2d targetAngle = locationSupplier.get().minus(robotPose.getTranslation()).getAngle();
+    Logger.recordOutput("Drive/TargetAngle", targetAngle);
+    Logger.recordOutput("Drive/CurrentAngle", (robotPose.getRotation()));
     return targetAngle;
   }
 
   public double angularVelocityToLocation(Supplier<Translation2d> locationSupplier) {
     double angularVelocity =
         rotationPIDController.calculate(
-            getPose().getRotation().getRadians(),
-            angleToLocation(locationSupplier).rotateBy(Rotation2d.k180deg).getRadians());
+            getPose().getRotation().getRadians(), angleToLocation(locationSupplier).getRadians());
     return angularVelocity;
   }
 
@@ -461,7 +465,7 @@ public class Drive extends SubsystemBase {
               Pose2d currentPosition = getPose();
               double robotAngle = MathUtil.angleModulus(currentPosition.getRotation().getRadians());
               Logger.recordOutput("Robot Angle", robotAngle);
-              rotationPIDController.reset(robotAngle);//TODO Add wrapping
+              rotationPIDController.reset(robotAngle);
               if (robotAngle >= -Math.PI / 2 && robotAngle <= Math.PI / 2) {
                 Goal = Rotation2d.kZero;
               } else {
