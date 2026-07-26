@@ -32,11 +32,6 @@ public class IntakeArm extends SubsystemBase {
     Logger.processInputs("Arm", armInputs);
   }
 
-  public Command setIntakeArmPosition() {
-    return run(() -> armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS))
-        .withName("intakeArmPosition");
-  }
-
   public Command push() {
     return run(
         () -> {
