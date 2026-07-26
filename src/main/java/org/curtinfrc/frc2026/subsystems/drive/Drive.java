@@ -63,7 +63,7 @@ public class Drive extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION =
       MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS - 0.5;
 
-  public static final double rotationKP = 1;
+  public static final double rotationKP = 10;
   public static final double rotationKI = 0;
   private static final double rotationKD = 0.7;
   ProfiledPIDController rotationPIDController =
@@ -354,6 +354,9 @@ public class Drive extends SubsystemBase {
     double angularVelocity =
         rotationPIDController.calculate(
             getPose().getRotation().getRadians(), angleToLocation(locationSupplier).getRadians());
+    if (Math.abs(rotationPIDController.getPositionError()) < 0.05) {
+      return 0;
+    }
     return angularVelocity;
   }
 
