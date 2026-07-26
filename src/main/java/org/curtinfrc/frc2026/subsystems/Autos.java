@@ -30,24 +30,55 @@ public class Autos {
     this.shooter = shooter;
   }
 
-  public Command singleSideGreedy() {
-    return trajectoryAuto("singleSideGreedy");
+  public Command singleGreedy() {
+    return trajectoryAuto("SingleGreedy");
   }
 
   public Command testAutoSafe() {
     return trajectoryAuto("testAutoSafe");
   }
 
-  public AutoRoutine singleSideGreedyRoutine() {
-    AutoRoutine routine = autoFactory.newRoutine("singleSideGreedy");
-    AutoTrajectory singleSideGreedy = routine.trajectory("singleSideGreedy");
+  public Command DoubleGreedy1() {
+    return trajectoryAuto("DoubleGreedyPart1");
+  }
+
+  public Command DoubleGreedy2() {
+    return trajectoryAuto("DoubleGreedyPart2");
+  }
+
+  public AutoRoutine singleGreedyRoutine() {
+    AutoRoutine routine = autoFactory.newRoutine("SingleGreedy");
+    AutoTrajectory singleGreedy = routine.trajectory("SingleGreedy");
 
     routine
         .active()
         .onTrue(
             Commands.sequence(
-                singleSideGreedy.resetOdometry(),
-                singleSideGreedy.cmd().deadlineFor(intake.intake())));
+                singleGreedy.resetOdometry(), singleGreedy.cmd().deadlineFor(intake.intake())));
+    return routine;
+  }
+
+  public AutoRoutine doubleGreedyRoutine() {
+    AutoRoutine routine = autoFactory.newRoutine("DoubleGreedyRoutine");
+    AutoTrajectory DoubleGreedy1 = routine.trajectory("DoubleGreedyPart1");
+    AutoTrajectory DoubleGreedy2 = routine.trajectory("DoubleGreedyPart2");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                DoubleGreedy1.resetOdometry(),
+                DoubleGreedy1.cmd().deadlineFor(intake.intake()),
+                Commands.parallel(
+                    hopperIndexer.setAllRollerVoltage(6),
+                    shooter
+                        .setAngularVelocity(40)
+                        .withTimeout(5.0)
+                        .andThen(
+                            hopperIndexer.stopAll(),
+                            shooter.setAngularVelocity(0).withTimeout(0.01))),
+                DoubleGreedy2.cmd().deadlineFor(intake.intake())));
+
     return routine;
   }
 

@@ -166,7 +166,7 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.b().whileTrue(shooter.setVoltage(5)).onFalse(shooter.setVoltage(0));
+    controller.b().whileTrue(shooter.setAngularVelocity(40)).onFalse(shooter.setAngularVelocity(0));
     // intakeArm.setDefaultCommand(intakeArm.intake());
     controller.rightBumper().whileTrue(intakeArm.push());
     controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
@@ -182,9 +182,12 @@ public class Robot extends LoggedRobot {
     autoChooser = new AutoChooser();
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
-    autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
+    autoChooser.addCmd("Single Greedy", autos::singleGreedy);
+    autoChooser.addCmd("Double Greedy Part 1", autos::DoubleGreedy1);
+    autoChooser.addCmd("Double Greedy Part 2", autos::DoubleGreedy2);
 
-    autoChooser.addRoutine("Single Side Greedy Routine", autos::singleSideGreedyRoutine);
+    autoChooser.addRoutine("Single Greedy Routine", autos::singleGreedyRoutine);
+    autoChooser.addRoutine("Double Greedy Routine", autos::doubleGreedyRoutine);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
