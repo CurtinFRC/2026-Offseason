@@ -20,7 +20,7 @@ public class Shooter extends SubsystemBase {
   private double velocityToleranceRotationsPerSecond = 1;
   private double maxAccelerationRotationsPerSecondPerSecond = 5;
 
-  public final Trigger readyToIndex =
+  public final Trigger readyToShoot =
       new Trigger(
           () ->
               (Math.abs(shooterInputs.velocityRotationsPerSecond - targetVelocityRotationsPerSecond)
@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("Shooter", shooterInputs);
-    Logger.recordOutput("Shooter/readyToShoot", readyToIndex.getAsBoolean());
+    Logger.recordOutput("Shooter/readyToShoot", readyToShoot.getAsBoolean());
     Logger.recordOutput(
         "Shooter/targetVelocityRotationsPerSecond", targetVelocityRotationsPerSecond);
     Logger.recordOutput(

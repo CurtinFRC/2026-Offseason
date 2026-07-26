@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -63,25 +64,27 @@ public class Drive extends SubsystemBase {
   private static final double MAX_ANGULAR_ACCELERATION =
       MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS - 0.5;
 
-  public static final double rotationKP = 10;
-  public static final double rotationKI = 0;
-  private static final double rotationKD = 0.7;
+  public static final double ROTATION_KP = 10;
+  public static final double ROTATION_KI = 0;
+  private static final double ROTATION_KD = 0.7;
+  private static final double ROTATION_PID_TOLERANCE = 0.05;
   ProfiledPIDController rotationPIDController =
       new ProfiledPIDController(
-          rotationKP,
-          rotationKI,
-          rotationKD,
+          ROTATION_KP,
+          ROTATION_KI,
+          ROTATION_KD,
           new TrapezoidProfile.Constraints(
               getMaxAngularSpeedRadPerSec(), MAX_ANGULAR_ACCELERATION));
 
-  public static final double positionKP = 5;
-  public static final double positionKI = 0;
-  private static final double positionKD = 0.0;
+  public static final double POSITION_KP = 5;
+  public static final double POSITION_KI = 0;
+  private static final double POSITION_KD = 0.0;
+  private static final double POSITION_PID_TOLERANCE = 0.1;
   ProfiledPIDController positionPIDController =
       new ProfiledPIDController(
-          positionKP,
-          positionKI,
-          positionKD,
+          POSITION_KP,
+          POSITION_KI,
+          POSITION_KD,
           new TrapezoidProfile.Constraints(
               getMaxLinearSpeedMetersPerSec(), MAX_LINEAR_ACCELERATION));
 
@@ -105,6 +108,9 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  public final Trigger readyToShoot =
+      new Trigger(() -> rotationPIDController.atGoal() && positionPIDController.atGoal());
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -117,6 +123,8 @@ public class Drive extends SubsystemBase {
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    rotationPIDController.setTolerance(ROTATION_PID_TOLERANCE);
+    positionPIDController.setTolerance(POSITION_PID_TOLERANCE);
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -141,6 +149,7 @@ public class Drive extends SubsystemBase {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
+    Logger.recordOutput("Drive/readyToShoot", readyToShoot.getAsBoolean());
 
     for (var module : modules) {
       module.periodic();
