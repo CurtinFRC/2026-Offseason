@@ -9,6 +9,7 @@ package org.curtinfrc.frc2026.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import choreo.trajectory.SwerveSample;
 import choreo.util.ChoreoAllianceFlipUtil;
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -121,9 +122,10 @@ public class Drive extends SubsystemBase {
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
-    rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
     headingController.enableContinuousInput(-Math.PI, Math.PI);
+    rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);

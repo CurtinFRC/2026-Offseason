@@ -188,6 +188,16 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    autoFactory =
+        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
+    autos = new Autos(autoFactory, drive, intakeArm, hopperIndexer, shooter);
+
+    autoChooser = new AutoChooser();
+    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
+    autoChooser.addCmd("Single Side Greedy", autos::singleSideGreedy);
+    autoChooser.addRoutine("Single Side Greedy Routine", autos::singleSideGreedyRoutine);
+    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
     drive.setDefaultCommand(
         drive.joystickDrive(
             () -> -controller.getLeftY(),
