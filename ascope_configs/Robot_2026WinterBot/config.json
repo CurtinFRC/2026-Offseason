@@ -1,0 +1,64 @@
+{
+  "name": "2026WinterBot",
+  "isFTC": false,
+  "disableSimplification": false,
+  "rotations": [
+    {
+      "axis": "z",
+      "degrees": -90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0
+  ],
+  "cameras": [
+    {
+      "name": "shooterLeft",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -40
+        },
+        {
+          "axis": "z",
+          "degrees": 0
+        }
+      ],
+      "position": [
+        0.314895,
+        0.251775,
+        0.209521
+      ],
+      "resolution": [
+        1280,
+        800
+      ],
+      "fov": 82
+    },
+    {
+      "name": "shooterRight",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -40
+        },
+        {
+          "axis": "z",
+          "degrees": 0
+        }
+      ],
+      "position": [
+        0.320732,
+        -0.251774,
+        0.214223
+      ],
+      "resolution": [
+        1280,
+        800
+      ],
+      "fov": 82
+    }
+  ]
+}

@@ -7,6 +7,8 @@
 
 package org.curtinfrc.frc2026;
 
+import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
+
 import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
@@ -37,6 +39,10 @@ import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIO;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOComp;
 import org.curtinfrc.frc2026.subsystems.shooter.ShooterIOSim;
+import org.curtinfrc.frc2026.subsystems.vision.Vision;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIO;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVision;
+import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 import org.curtinfrc.frc2026.util.AutoChooser;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
@@ -55,6 +61,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Drive drive;
+  private Vision vision;
   private Shooter shooter;
   private IntakeArm intakeArm;
   private HopperIndexer hopperIndexer;
@@ -65,6 +72,13 @@ public class Robot extends LoggedRobot {
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
+
+  // private static final LoggedTunableNumber tunableShooterTargetVelocity =
+  //     new LoggedTunableNumber("Shooter/TargetVelocityRotationsPerSecond", 80.0);
+  // private static final LoggedTunableNumber tunableShooterVelocityTolerance =
+  //     new LoggedTunableNumber("Shooter/VelocityToleranceRotationsPerSecond", 2.0);
+  // private static final LoggedTunableNumber tunableShooterMaxAcceleration =
+  //     new LoggedTunableNumber("Shooter/MaxAccelerationRotationsPerSecondPerSecond", 5.0);
 
   public Robot() {
 
@@ -116,6 +130,12 @@ public class Robot extends LoggedRobot {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(cameraConfigs[0].name(), cameraConfigs[0].robotToCamera()),
+                new VisionIOPhotonVision(
+                    cameraConfigs[1].name(), cameraConfigs[1].robotToCamera()));
         shooter = new Shooter(new ShooterIOComp());
         intakeArm = new IntakeArm(new IntakeIOComp(), new ArmIOComp());
         hopperIndexer =
@@ -133,6 +153,13 @@ public class Robot extends LoggedRobot {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    cameraConfigs[0].name(), cameraConfigs[0].robotToCamera(), drive::getPose),
+                new VisionIOPhotonVisionSim(
+                    cameraConfigs[1].name(), cameraConfigs[1].robotToCamera(), drive::getPose));
         shooter = new Shooter(new ShooterIOSim());
         intakeArm = new IntakeArm(new IntakeIOSim(), new ArmIOSim());
         hopperIndexer =
@@ -154,6 +181,7 @@ public class Robot extends LoggedRobot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         shooter = new Shooter(new ShooterIO() {});
         intakeArm = new IntakeArm(new IntakeIO() {}, new ArmIO() {});
         hopperIndexer = new HopperIndexer(new IndexerRollerIO() {}, new IndexerRollerIO() {});
@@ -166,13 +194,22 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    controller
+        .rightBumper()
+        .whileTrue(shooter.setAngularVelocity(30))
+        .onFalse(shooter.setVoltage(0));
     controller.b().whileTrue(shooter.setAngularVelocity(40)).onFalse(shooter.setAngularVelocity(0));
     // intakeArm.setDefaultCommand(intakeArm.intake());
-    controller.rightBumper().whileTrue(intakeArm.push());
-    controller.a().whileTrue(hopperIndexer.setAllRollerVoltage(6)).onFalse(hopperIndexer.stopAll());
-    controller
-        .leftBumper()
-        .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+    controller.leftBumper().onTrue(intakeArm.intake());
+    controller.rightTrigger().whileTrue(drive.alignToHub());
+    // controller
+    //     .leftTrigger()
+    //     .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+    shooter
+        .readyToIndex
+        .onTrue(hopperIndexer.setAllRollerVoltage(6))
+        .onFalse(hopperIndexer.stopAll())
+        .onTrue(intakeArm.push());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
