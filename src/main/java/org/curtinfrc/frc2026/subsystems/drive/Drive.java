@@ -125,6 +125,7 @@ public class Drive extends SubsystemBase {
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.setTolerance(ROTATION_PID_TOLERANCE);
     positionPIDController.setTolerance(POSITION_PID_TOLERANCE);
+    FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
