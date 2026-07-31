@@ -18,7 +18,7 @@ public class IntakeArm extends SubsystemBase {
   // Roller velocity setpoints in mechanism rotations/sec.
   // Derived from the previous 8V/2V open-loop values (~58 RPS free speed at 12V); tune on robot.
   private static final double INTAKE_VELOCITY_RPS = 40;
-  private static final double IDLE_VELOCITY_RPS = 10;
+  private static final double IDLE_VELOCITY_RPS = 0;
 
   // Arm position for game piece intake (in rotations)
   private static final double MIN_ARM_POSITION_ROTATIONS = -28.0; // Make LOWER
