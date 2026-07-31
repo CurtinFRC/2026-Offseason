@@ -47,4 +47,12 @@ public class IntakeArm extends SubsystemBase {
           intakeIO.setRollerVelocity(INTAKE_VELOCITY_RPS);
         });
   }
+
+  public Command outake() {
+    return run(
+        () -> {
+          armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS);
+          intakeIO.setRollerVelocity(-INTAKE_VELOCITY_RPS);
+        });
+  }
 }
