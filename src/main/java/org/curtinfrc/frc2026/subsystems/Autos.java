@@ -74,14 +74,10 @@ public class Autos {
                 DoubleGreedy1.resetOdometry(),
                 DoubleGreedy1.cmd().deadlineFor(intake.intake()),
                 Commands.parallel(
-                    hopperIndexer.setAllRollerVoltage(6),
-                    shooter
-                        .setAngularVelocity(40)
-                        .withTimeout(5.0)
-                        .andThen(
-                            hopperIndexer.stopAll(),
-                            shooter.setAngularVelocity(0).withTimeout(0.01))),
-                DoubleGreedy2.cmd().deadlineFor(intake.intake())));
+                    shooter.setAngularVelocity(30), drive.alignToHub().withTimeout(4)),
+                DoubleGreedy2.cmd().deadlineFor(intake.intake()),
+                Commands.parallel(
+                    shooter.setAngularVelocity(30), drive.alignToHub()).withTimeout(4)));
 
     return routine;
   }
