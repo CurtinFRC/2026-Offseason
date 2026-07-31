@@ -11,16 +11,16 @@ public class Shooter extends SubsystemBase {
   public static final double ROLLER_DIAMETER = 0.082;
   public static final double MOTOR_WARNING_TEMP = 60;
 
-  public static final double OPTIMAL_SHOOTING_DISTANCE = 1.75; // TODO! tune this value
+  public static final double OPTIMAL_SHOOTING_DISTANCE = 2.5; // TODO! tune this value
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
 
   private double targetVelocityRotationsPerSecond = 0;
-  private double velocityToleranceRotationsPerSecond = 1;
+  private double velocityToleranceRotationsPerSecond = 1.5;
   private double maxAccelerationRotationsPerSecondPerSecond = 5;
 
-  public final Trigger readyToIndex =
+  public final Trigger readyToShoot =
       new Trigger(
           () ->
               (Math.abs(shooterInputs.velocityRotationsPerSecond - targetVelocityRotationsPerSecond)
@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     shooterIO.updateInputs(shooterInputs);
     Logger.processInputs("Shooter", shooterInputs);
-    Logger.recordOutput("Shooter/readyToShoot", readyToIndex.getAsBoolean());
+    Logger.recordOutput("Shooter/readyToShoot", readyToShoot.getAsBoolean());
     Logger.recordOutput(
         "Shooter/targetVelocityRotationsPerSecond", targetVelocityRotationsPerSecond);
     Logger.recordOutput(

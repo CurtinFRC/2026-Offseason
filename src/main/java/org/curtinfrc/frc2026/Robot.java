@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import org.curtinfrc.frc2026.subsystems.Autos;
@@ -194,22 +195,25 @@ public class Robot extends LoggedRobot {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
+    shooter.setDefaultCommand(shooter.setVoltage(0));
+
+    intakeArm.setDefaultCommand(intakeArm.intake());
+
     controller
         .rightBumper()
-        .whileTrue(shooter.setAngularVelocity(30))
-        .onFalse(shooter.setVoltage(0));
-    controller.b().whileTrue(shooter.setAngularVelocity(40)).onFalse(shooter.setAngularVelocity(0));
-    // intakeArm.setDefaultCommand(intakeArm.intake());
-    controller.leftBumper().onTrue(intakeArm.intake());
-    controller.rightTrigger().whileTrue(drive.alignToHub());
+        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
+
+    controller.rightTrigger().whileTrue(intakeArm.outake());
+    // controller.leftBumper().onTrue(intakeArm.intake());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
     shooter
-        .readyToIndex
+        .readyToShoot
+        .and(drive.readyToShoot)
         .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll())
-        .onTrue(intakeArm.push());
+        .onTrue(intakeArm.intake().withTimeout(2).andThen(intakeArm.push()))
+        .onFalse(hopperIndexer.stopAll());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);

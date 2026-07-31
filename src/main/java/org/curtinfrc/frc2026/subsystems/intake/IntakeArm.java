@@ -21,7 +21,7 @@ public class IntakeArm extends SubsystemBase {
   private static final double IDLE_VELOCITY_RPS = 0;
 
   // Arm position for game piece intake (in rotations)
-  private static final double MIN_ARM_POSITION_ROTATIONS = -28.0; // Make LOWER
+  public static final double MIN_ARM_POSITION_ROTATIONS = -28.0; // Make LOWER
   private static final double MAX_ARM_POSITION_ROTATIONS = -0.1;
 
   @Override
@@ -45,6 +45,14 @@ public class IntakeArm extends SubsystemBase {
         () -> {
           armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS);
           intakeIO.setRollerVelocity(INTAKE_VELOCITY_RPS);
+        });
+  }
+
+  public Command outake() {
+    return run(
+        () -> {
+          armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS);
+          intakeIO.setRollerVelocity(-INTAKE_VELOCITY_RPS);
         });
   }
 }
