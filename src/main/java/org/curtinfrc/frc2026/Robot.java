@@ -220,6 +220,7 @@ public class Robot extends LoggedRobot {
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
     autoChooser.addCmd("Single Greedy", autos::singleGreedy);
+    autoChooser.addCmd("Double Greedy Test", autos::DoubleGreedy1_Test);
     autoChooser.addCmd("Double Greedy Part 1", autos::DoubleGreedy1);
     autoChooser.addCmd("Double Greedy Part 2", autos::DoubleGreedy2);
 

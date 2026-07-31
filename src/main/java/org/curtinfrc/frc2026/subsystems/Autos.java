@@ -46,6 +46,10 @@ public class Autos {
     return trajectoryAuto("DoubleGreedyPart2");
   }
 
+  public Command DoubleGreedy1_Test() {
+    return trajectoryAuto("DoubleGreedyPart1_Test");
+  }
+
   public AutoRoutine singleGreedyRoutine() {
     AutoRoutine routine = autoFactory.newRoutine("SingleGreedy");
     AutoTrajectory singleGreedy = routine.trajectory("SingleGreedy");
