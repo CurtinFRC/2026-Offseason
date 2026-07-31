@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.*;
 
 import choreo.trajectory.SwerveSample;
 import choreo.util.ChoreoAllianceFlipUtil;
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -125,7 +124,6 @@ public class Drive extends SubsystemBase {
 
     headingController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
-
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
