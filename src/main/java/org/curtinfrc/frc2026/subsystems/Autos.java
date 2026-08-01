@@ -73,11 +73,11 @@ public class Autos {
             Commands.sequence(
                 DoubleGreedy1.resetOdometry(),
                 DoubleGreedy1.cmd().deadlineFor(intake.intake()),
-                Commands.parallel(
-                    shooter.setAngularVelocity(30), drive.alignToHub().withTimeout(4)),
-                DoubleGreedy2.cmd().deadlineFor(intake.intake()),
-                Commands.parallel(
-                    shooter.setAngularVelocity(30), drive.alignToHub()).withTimeout(4)));
+                Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub())));
+    //         .withTimeout(4),
+    //     DoubleGreedy2.cmd().deadlineFor(intake.intake()),
+    //     Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
+    // .withTimeout(4));
 
     return routine;
   }
