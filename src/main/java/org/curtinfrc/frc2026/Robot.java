@@ -201,10 +201,11 @@ public class Robot extends LoggedRobot {
 
     controller
         .rightBumper()
-        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
+        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
+        .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
-    // controller.leftBumper().onTrue(intakeArm.intake());
+    controller.leftBumper().onTrue(intakeArm.intake());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
