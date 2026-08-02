@@ -56,7 +56,8 @@ public class IntakeIOComp implements IntakeIO {
 
     motor.getConfigurator().apply(slot0Configs);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, position, current, temperature);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, voltage, velocity, position, current, temperature);
     motor.optimizeBusUtilization();
     PhoenixUtil.registerSignals(false, voltage, velocity, position, current, temperature);
   }

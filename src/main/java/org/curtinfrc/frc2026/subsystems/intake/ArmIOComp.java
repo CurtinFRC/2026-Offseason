@@ -2,8 +2,6 @@ package org.curtinfrc.frc2026.subsystems.intake;
 
 import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 
-import java.time.temporal.Temporal;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;

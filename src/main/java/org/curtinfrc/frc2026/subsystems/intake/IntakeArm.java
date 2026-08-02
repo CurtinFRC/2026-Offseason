@@ -4,8 +4,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.littletonrobotics.junction.Logger;
 import org.curtinfrc.frc2026.Constants;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeArm extends SubsystemBase {
   private final IntakeIO intakeIO;
@@ -20,14 +20,14 @@ public class IntakeArm extends SubsystemBase {
     this.intakeIO = intakeIO;
     this.armIO = armIO;
 
-    intakeMotorTempAlert = new Alert("Intake motor temperature above "
-                  + Constants.MOTOR_WARNING_TEMP
-                  + "°C.",
-              AlertType.kWarning);
-    armMotorTempAlert = new Alert("Arm motor temperature above "
-                  + Constants.MOTOR_WARNING_TEMP
-                  + "°C.",
-              AlertType.kWarning);
+    intakeMotorTempAlert =
+        new Alert(
+            "Intake motor temperature above " + Constants.MOTOR_WARNING_TEMP + "°C.",
+            AlertType.kWarning);
+    armMotorTempAlert =
+        new Alert(
+            "Arm motor temperature above " + Constants.MOTOR_WARNING_TEMP + "°C.",
+            AlertType.kWarning);
   }
 
   private static final double INTAKE_VELOCITY_RPS = 40;
