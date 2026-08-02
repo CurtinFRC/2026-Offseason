@@ -5,15 +5,12 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ArmIO {
   @AutoLog
   public static class ArmIOInputs {
-    // what we are getting from the motors
-
-    public double appliedVoltage = 0.0;
-    public double currentAmps = 0.0;
-    public double angularVelocity = 0.0;
-    public double motorPosition = 0.0;
+    public double motorTemperature;
+    public double appliedVoltage;
+    public double currentAmps;
+    public double angularVelocity;
+    public double motorPosition;
   }
-
-  // what we are sending to the motors
 
   public default void setArmVoltage(double volts) {}
 

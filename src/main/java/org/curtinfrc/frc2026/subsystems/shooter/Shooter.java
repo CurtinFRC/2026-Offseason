@@ -6,12 +6,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.Logger;
+import org.curtinfrc.frc2026.Constants;
 
 public class Shooter extends SubsystemBase {
   public static final double ROLLER_DIAMETER = 0.082;
-  public static final double MOTOR_WARNING_TEMP = 60;
-
-  public static final double OPTIMAL_SHOOTING_DISTANCE = 2.5; // TODO! tune this value
+  public static final double OPTIMAL_SHOOTING_DISTANCE = 2.5;
 
   private final ShooterIO shooterIO;
   private final ShooterIOInputsAutoLogged shooterInputs = new ShooterIOInputsAutoLogged();
@@ -39,7 +38,7 @@ public class Shooter extends SubsystemBase {
               "Shooter motor "
                   + String.valueOf(motor)
                   + " temperature above "
-                  + MOTOR_WARNING_TEMP
+                  + Constants.MOTOR_WARNING_TEMP
                   + "°C.",
               AlertType.kWarning);
     }
@@ -60,7 +59,7 @@ public class Shooter extends SubsystemBase {
 
     for (int motor = 0; motor < 4; motor++) {
       shooterMotorTempAlerts[motor].set(
-          shooterInputs.motorTemperatures[motor] > MOTOR_WARNING_TEMP);
+          shooterInputs.motorTemperatures[motor] > Constants.MOTOR_WARNING_TEMP);
     }
   }
 

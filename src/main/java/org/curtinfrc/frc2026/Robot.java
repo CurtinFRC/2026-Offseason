@@ -67,13 +67,6 @@ public class Robot extends LoggedRobot {
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
-  // private static final LoggedTunableNumber tunableShooterTargetVelocity =
-  //     new LoggedTunableNumber("Shooter/TargetVelocityRotationsPerSecond", 80.0);
-  // private static final LoggedTunableNumber tunableShooterVelocityTolerance =
-  //     new LoggedTunableNumber("Shooter/VelocityToleranceRotationsPerSecond", 2.0);
-  // private static final LoggedTunableNumber tunableShooterMaxAcceleration =
-  //     new LoggedTunableNumber("Shooter/MaxAccelerationRotationsPerSecondPerSecond", 5.0);
-
   public Robot() {
 
     // Record metadata

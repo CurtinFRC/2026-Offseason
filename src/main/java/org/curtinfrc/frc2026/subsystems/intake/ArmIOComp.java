@@ -2,6 +2,8 @@ package org.curtinfrc.frc2026.subsystems.intake;
 
 import static org.curtinfrc.frc2026.util.PhoenixUtil.tryUntilOk;
 
+import java.time.temporal.Temporal;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -16,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
@@ -24,7 +27,6 @@ public class ArmIOComp implements ArmIO {
 
   private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(true);
   private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
-  private final PositionVoltage positionShootRequest = new PositionVoltage(0).withSlot(1);
 
   public static final double GEAR_RATIO = 1;
 
@@ -33,6 +35,7 @@ public class ArmIOComp implements ArmIO {
   private final StatusSignal<Current> current = motor.getStatorCurrent();
   private final StatusSignal<Angle> position = motor.getPosition();
   private final StatusSignal<AngularVelocity> velocity = motor.getVelocity();
+  private final StatusSignal<Temperature> temperature = motor.getDeviceTemp();
 
   private static final TalonFXConfiguration config =
       new TalonFXConfiguration()
@@ -52,18 +55,18 @@ public class ArmIOComp implements ArmIO {
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
     motor.getConfigurator().apply(slot0Configs);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, position, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, voltage, velocity, position, temperature);
     motor.optimizeBusUtilization();
-    PhoenixUtil.registerSignals(false, voltage, velocity, position, current);
+    PhoenixUtil.registerSignals(false, voltage, velocity, position, current, temperature);
   }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-
     inputs.appliedVoltage = voltage.getValueAsDouble();
     inputs.currentAmps = current.getValueAsDouble();
     inputs.angularVelocity = velocity.getValueAsDouble();
     inputs.motorPosition = position.getValueAsDouble();
+    inputs.motorTemperature = temperature.getValueAsDouble();
   }
 
   @Override
@@ -73,8 +76,6 @@ public class ArmIOComp implements ArmIO {
 
   @Override
   public void setArmPosition(double rotations) {
-    // Send the position request to the arm motor
-    // The motor's internal PID handles getting there smoothly
     motor.setControl(positionRequest.withPosition(rotations));
   }
 }
