@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 public class ArmIOSim extends ArmIOComp {
   private static final double DT = 0.02;
   private static final double ARM_JKG = 0.036555;
-  // Derived: 24 rotor rotations (IntakeArm.MAX_ARM_POSITION_ROTATIONS) over the full
-  // 50 deg arm travel -> 172.8:1. Tune against real hardware measurements.
   private static final double ARM_GEAR_RATIO = 172.8;
   private static final double ARM_LENGTH_METERS = 0.340313;
   private static final double MIN_ANGLE_RADS = -0.8726646;
@@ -23,7 +21,7 @@ public class ArmIOSim extends ArmIOComp {
   private static final double STARTING_ANGLE_RADS = -0.8726646;
 
   private final TalonFXSimState motorSim;
-  private final DCMotor motorType = DCMotor.getKrakenX60Foc(3);
+  private final DCMotor motorType = DCMotor.getKrakenX60Foc(1);
   private final SingleJointedArmSim motorSimModel;
   private final Notifier simNotifier;
 
