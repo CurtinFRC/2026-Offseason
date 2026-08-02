@@ -342,7 +342,7 @@ public class Drive extends SubsystemBase {
                   angleToLocation(() -> hubLocation));
 
           ChassisSpeeds speeds =
-              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
+              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), angularVelocity);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
@@ -363,7 +363,8 @@ public class Drive extends SubsystemBase {
   public double angularVelocityToLocation(Supplier<Translation2d> locationSupplier) {
     double angularVelocity =
         rotationPIDController.calculate(
-            getPose().getRotation().getRadians(), angleToLocation(locationSupplier).getRadians());
+            getPose().getRotation().getRadians(),
+            angleToLocation(locationSupplier).plus(Rotation2d.k180deg).getRadians());
     if (Math.abs(rotationPIDController.getPositionError()) < 0.05) {
       return 0;
     }
@@ -505,7 +506,7 @@ public class Drive extends SubsystemBase {
                       new ChassisSpeeds(
                           linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
                           linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
-                          -angleSpeed);
+                          angleSpeed);
                   boolean isFlipped =
                       DriverStation.getAlliance().isPresent()
                           && DriverStation.getAlliance().get() == Alliance.Red;
