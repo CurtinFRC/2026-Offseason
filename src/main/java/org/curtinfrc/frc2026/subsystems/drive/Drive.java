@@ -37,6 +37,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import java.lang.reflect.Field;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
@@ -125,6 +127,7 @@ public class Drive extends SubsystemBase {
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.setTolerance(ROTATION_PID_TOLERANCE);
     positionPIDController.setTolerance(POSITION_PID_TOLERANCE);
+    FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
