@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 
@@ -25,6 +26,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
   private final StatusSignal<Angle> position;
   private final StatusSignal<Current> statorCurrent;
   private final StatusSignal<Current> supplyCurrent;
+  private final StatusSignal<Temperature> motorTemperature;
 
   public IndexerRollerIOComp(int motorID, InvertedValue invertedValue) {
     rollerMotor = new TalonFX(motorID);
@@ -44,11 +46,12 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
     position = rollerMotor.getPosition();
     statorCurrent = rollerMotor.getStatorCurrent();
     supplyCurrent = rollerMotor.getSupplyCurrent();
+    motorTemperature = rollerMotor.getDeviceTemp();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, voltage, statorCurrent, supplyCurrent, position, angularVelocity);
+        50.0, voltage, statorCurrent, supplyCurrent, position, angularVelocity, motorTemperature);
     PhoenixUtil.registerSignals(
-        false, voltage, statorCurrent, supplyCurrent, angularVelocity, position);
+        false, voltage, statorCurrent, supplyCurrent, angularVelocity, position, motorTemperature);
     rollerMotor.optimizeBusUtilization();
   }
 
@@ -59,6 +62,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRotationsPerSecond = angularVelocity.getValueAsDouble();
+    inputs.motorTemperature = motorTemperature.getValueAsDouble();
   }
 
   @Override
