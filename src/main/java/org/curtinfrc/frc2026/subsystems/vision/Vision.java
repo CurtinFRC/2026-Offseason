@@ -36,14 +36,14 @@ public class Vision extends SubsystemBase {
         new CameraConfig(
             "shooterLeft",
             new Transform3d(
-                new Translation3d(0.31489531, -0.251775, 0.20952142),
-                new Rotation3d(0, -0.69813, 0)),
+                new Translation3d(-0.31489531, 0.251775, 0.20952142),
+                new Rotation3d(0, -0.69813, 3.14)),
             1.0),
         new CameraConfig(
             "shooterRight",
             new Transform3d(
-                new Translation3d(0.31489531, 0.251775, 0.20952142),
-                new Rotation3d(0, -0.69813, 0)),
+                new Translation3d(-0.31489531, -0.251775, 0.20952142),
+                new Rotation3d(0, -0.69813, 3.14)),
             1.0),
       };
 
