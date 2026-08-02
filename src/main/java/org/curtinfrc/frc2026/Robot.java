@@ -196,8 +196,7 @@ public class Robot extends LoggedRobot {
     shooter
         .readyToShoot
         .and(drive.readyToShoot)
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
+        .onTrue(hopperIndexer.setAllRollerVoltage(6).until(controller.rightBumper().negate()));
   }
 
   /** This function is called periodically during all modes. */
