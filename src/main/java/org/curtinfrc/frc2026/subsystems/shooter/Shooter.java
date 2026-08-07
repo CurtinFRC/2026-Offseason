@@ -74,4 +74,5 @@ public class Shooter extends SubsystemBase {
           targetVelocityRotationsPerSecond = angularVelocityRotationsPerSecond;
         });
   }
+  
 }
