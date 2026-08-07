@@ -54,6 +54,7 @@ public class AutoChooser extends LoggedNetworkInput {
   private final StringArrayEntry options;
 
   private String lastCommandName = NONE_NAME;
+  private String generatedName = null;
   private Command lastCommand = Commands.none();
 
   private final LoggableInputs inputs =
@@ -118,13 +119,13 @@ public class AutoChooser extends LoggedNetworkInput {
    * not responded to the selection yet and you need to disable the robot to update it.
    */
   public void periodic() {
-    if (!Logger.hasReplaySource()) {
-      if (DriverStation.isDisabled()
-          && DriverStation.isDSAttached()
-          && DriverStation.getAlliance().isPresent()) {
-        String selectStr = selected.get();
-        if (selectStr.equals(lastCommandName)) return;
-        if (!autoRoutines.containsKey(selectStr) && !selectStr.equals(NONE_NAME)) {
+    if (!Logger.hasReplaySource()
+        && DriverStation.isDisabled()
+        && DriverStation.isDSAttached()
+        && DriverStation.getAlliance().isPresent()) {
+      String selectStr = selected.get();
+      if (!selectStr.equals(lastCommandName)) {
+        if (!autoRoutines.containsKey(selectStr)) {
           selected.set(NONE_NAME);
           selectStr = NONE_NAME;
           selectedNonexistentAuto.set(true);
@@ -134,9 +135,14 @@ public class AutoChooser extends LoggedNetworkInput {
         lastCommandName = selectStr;
       }
     }
-    lastCommand = autoRoutines.get(lastCommandName).get();
-    active.set(lastCommandName);
+    // Always log, so replay sees the selection every cycle. In replay, fromLog may change
+    // lastCommandName here; the check below then regenerates the command for the new name.
     Logger.processInputs(prefix + " " + key, inputs);
+    if (!lastCommandName.equals(generatedName)) {
+      lastCommand = autoRoutines.getOrDefault(lastCommandName, Commands::none).get();
+      generatedName = lastCommandName;
+    }
+    active.set(lastCommandName);
   }
 
   /**
