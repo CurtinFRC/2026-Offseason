@@ -191,23 +191,23 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.intake());
 
+    // Aim, spin up, and feed-at-speed must live in ONE composition: two whileTrue bindings on the
+    // same button both requiring the shooter cancel each other, which is what killed aiming.
     controller
         .rightBumper()
-        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
+        .whileTrue(
+            Commands.parallel(
+                drive.alignToHub(),
+                shooter.setAngularVelocity(30),
+                Commands.waitUntil(shooter.readyToShoot)
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))))
         .onFalse(intakeArm.intake());
-
-    controller.rightBumper().whileTrue(Commands.parallel(shooter.setAngularVelocity(30),Commands.waitUntil(shooter.readyToShoot).andThen(hopperIndexer.setAllRollerVoltage(6))));
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
     controller.leftBumper().whileTrue(intakeArm.push());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter
-        .readyToShoot
-        .and(drive.readyToShoot)
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);

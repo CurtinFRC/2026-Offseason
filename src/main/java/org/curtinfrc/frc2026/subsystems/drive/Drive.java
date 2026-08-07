@@ -351,8 +351,9 @@ public class Drive extends SubsystemBase {
   }
 
   public Command alignToHub() {
-    return run(
+    return runEnd(
         () -> {
+          aligning = true;
           Translation2d hubLocation =
               ChoreoAllianceFlipUtil.shouldFlip()
                   ? ChoreoAllianceFlipUtil.flip(FieldConstants.Hub.topCenterPoint.toTranslation2d())
@@ -376,7 +377,8 @@ public class Drive extends SubsystemBase {
           runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds, isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()));
-        });
+        },
+        () -> aligning = false);
   }
 
   public Rotation2d angleToLocation(Supplier<Translation2d> locationSupplier) {
