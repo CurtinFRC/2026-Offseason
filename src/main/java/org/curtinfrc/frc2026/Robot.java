@@ -191,29 +191,24 @@ public class Robot extends LoggedRobot {
     shooter.setDefaultCommand(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.intake());
 
-    controller
-        .rightBumper()
-        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
-        .onFalse(intakeArm.intake());
-
+    // KEEP AS ONE BINDING. Two whileTrue bindings on the same button both requiring the shooter
+    // cancel each other, which kills alignToHub the cycle it starts (the "doesn't aim" bug).
+    // Likewise, a separate readyToShoot->feed trigger conflicts with the rollers used here.
     controller
         .rightBumper()
         .whileTrue(
             Commands.parallel(
+                drive.alignToHub(),
                 shooter.setAngularVelocity(30),
                 Commands.waitUntil(shooter.readyToShoot)
-                    .andThen(hopperIndexer.setAllRollerVoltage(6))));
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))))
+        .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
     controller.leftBumper().whileTrue(intakeArm.push());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter
-        .readyToShoot
-        .and(drive.readyToShoot)
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
