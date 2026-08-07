@@ -78,6 +78,10 @@ public class Autos {
    */
   private Command shoot() {
     return Commands.parallel(
+            // The surrounding sequence owns the drive for its whole duration, so the drive's
+            // default command can't run here. Without an active stop the modules keep chasing
+            // the trajectory follower's last setpoint (logged: a 4.5 rad/s spin during shoot).
+            drive.run(drive::stop),
             shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
             Commands.waitUntil(shooter.readyToShoot)
                 .andThen(hopperIndexer.setAllRollerVoltage(FEED_VOLTS)))
