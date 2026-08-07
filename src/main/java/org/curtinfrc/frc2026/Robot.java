@@ -201,11 +201,14 @@ public class Robot extends LoggedRobot {
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter
-        .readyToShoot
-        .and(drive.readyToShoot)
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
+    // Feed while the driver is shooting and the flywheel is at speed. drive.readyToShoot is
+    // deliberately not used: its align PID controllers are only updated (and never reset) inside
+    // alignToHub, so atGoal() is stale and the gate never opens. Teleop-only so a stray button
+    // press can't schedule a roller command mid-auto and cancel the auto sequence.
+    RobotModeTriggers.teleop()
+        .and(controller.rightBumper())
+        .and(shooter.readyToShoot)
+        .whileTrue(hopperIndexer.setAllRollerVoltage(6));
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
