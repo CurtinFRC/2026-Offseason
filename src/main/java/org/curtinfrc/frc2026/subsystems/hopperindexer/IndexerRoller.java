@@ -22,6 +22,7 @@ public class IndexerRoller extends SubsystemBase {
   }
 
   public Command setVoltage(double voltage) {
-    return run(() -> indexerRollerIO.setVoltage(voltage));
+    // Stop on interruption so callers (e.g. auto shoot timeouts) can't leave the roller running.
+    return runEnd(() -> indexerRollerIO.setVoltage(voltage), () -> indexerRollerIO.setVoltage(0));
   }
 }

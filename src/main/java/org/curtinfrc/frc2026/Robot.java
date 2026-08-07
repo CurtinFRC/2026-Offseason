@@ -218,15 +218,15 @@ public class Robot extends LoggedRobot {
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
 
-    autos = new Autos(autoFactory, drive, intakeArm, hopperIndexer, shooter);
+    autos = new Autos(autoFactory, drive, hopperIndexer, shooter);
 
     autoChooser = new AutoChooser();
 
     autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
     autoChooser.addCmd("Single Greedy", autos::singleGreedy);
-    autoChooser.addCmd("Double Greedy Test", autos::DoubleGreedy1_Test);
-    autoChooser.addCmd("Double Greedy Part 1", autos::DoubleGreedy1);
-    autoChooser.addCmd("Double Greedy Part 2", autos::DoubleGreedy2);
+    autoChooser.addCmd("Double Greedy Test", autos::doubleGreedy1Test);
+    autoChooser.addCmd("Double Greedy Part 1", autos::doubleGreedy1);
+    autoChooser.addCmd("Double Greedy Part 2", autos::doubleGreedy2);
 
     autoChooser.addRoutine("Single Greedy Routine", autos::singleGreedyRoutine);
     autoChooser.addRoutine("Double Greedy Routine", autos::doubleGreedyRoutine);
@@ -249,9 +249,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {
-    autoChooser.periodic();
-  }
+  public void disabledPeriodic() {}
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
