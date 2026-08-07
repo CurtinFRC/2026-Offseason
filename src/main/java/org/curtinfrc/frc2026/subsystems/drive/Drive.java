@@ -132,6 +132,7 @@ public class Drive extends SubsystemBase {
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.setTolerance(ROTATION_PID_TOLERANCE);
     positionPIDController.setTolerance(POSITION_PID_TOLERANCE);
+    FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -360,7 +361,7 @@ public class Drive extends SubsystemBase {
                   angleToLocation(() -> hubLocation));
 
           ChassisSpeeds speeds =
-              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
+              new ChassisSpeeds(-linearVelocity.getX(), -linearVelocity.getY(), -angularVelocity);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
@@ -372,7 +373,12 @@ public class Drive extends SubsystemBase {
 
   public Rotation2d angleToLocation(Supplier<Translation2d> locationSupplier) {
     Pose2d robotPose = getPose();
-    Rotation2d targetAngle = locationSupplier.get().minus(robotPose.getTranslation()).getAngle();
+    Rotation2d targetAngle =
+        locationSupplier
+            .get()
+            .minus(robotPose.getTranslation())
+            .getAngle()
+            .plus(Rotation2d.k180deg);
     Logger.recordOutput("Drive/TargetAngle", targetAngle);
     Logger.recordOutput("Drive/CurrentAngle", (robotPose.getRotation()));
     return targetAngle;
@@ -385,7 +391,7 @@ public class Drive extends SubsystemBase {
     if (Math.abs(rotationPIDController.getPositionError()) < 0.05) {
       return 0;
     }
-    return angularVelocity;
+    return -angularVelocity;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

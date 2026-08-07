@@ -15,7 +15,7 @@ public class IntakeIOSim extends IntakeIOComp {
   private static final double INTAKE_JKG = 0.0000916;
 
   private final TalonFXSimState intakeSim;
-  private final DCMotor motorType = DCMotor.getKrakenX60Foc(3);
+  private final DCMotor motorType = DCMotor.getKrakenX60Foc(1);
   private final DCMotorSim motorSimModel;
   private final Notifier simNotifier;
 

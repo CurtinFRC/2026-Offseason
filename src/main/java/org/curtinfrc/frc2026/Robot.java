@@ -74,13 +74,6 @@ public class Robot extends LoggedRobot {
   private final Alert controllerDisconnected =
       new Alert("Driver controller disconnected!", AlertType.kError);
 
-  // private static final LoggedTunableNumber tunableShooterTargetVelocity =
-  //     new LoggedTunableNumber("Shooter/TargetVelocityRotationsPerSecond", 80.0);
-  // private static final LoggedTunableNumber tunableShooterVelocityTolerance =
-  //     new LoggedTunableNumber("Shooter/VelocityToleranceRotationsPerSecond", 2.0);
-  // private static final LoggedTunableNumber tunableShooterMaxAcceleration =
-  //     new LoggedTunableNumber("Shooter/MaxAccelerationRotationsPerSecondPerSecond", 5.0);
-
   public Robot() {
 
     // Record metadata
@@ -193,18 +186,18 @@ public class Robot extends LoggedRobot {
         drive.joystickDrive(
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> -controller.getRightX()));
 
     shooter.setDefaultCommand(shooter.setVoltage(0));
-
     intakeArm.setDefaultCommand(intakeArm.intake());
 
     controller
         .rightBumper()
-        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
+        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
+        .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
-    // controller.leftBumper().onTrue(intakeArm.intake());
+    controller.leftBumper().whileTrue(intakeArm.push());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
@@ -212,7 +205,6 @@ public class Robot extends LoggedRobot {
         .readyToShoot
         .and(drive.readyToShoot)
         .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onTrue(intakeArm.intake().withTimeout(2).andThen(intakeArm.push()))
         .onFalse(hopperIndexer.stopAll());
 
     autoFactory =
