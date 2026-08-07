@@ -196,7 +196,13 @@ public class Robot extends LoggedRobot {
         .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()))
         .onFalse(intakeArm.intake());
 
-    controller.rightBumper().whileTrue(Commands.parallel(shooter.setAngularVelocity(30),Commands.waitUntil(shooter.readyToShoot).andThen(hopperIndexer.setAllRollerVoltage(6))));
+    controller
+        .rightBumper()
+        .whileTrue(
+            Commands.parallel(
+                shooter.setAngularVelocity(30),
+                Commands.waitUntil(shooter.readyToShoot)
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))));
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
     controller.leftBumper().whileTrue(intakeArm.push());

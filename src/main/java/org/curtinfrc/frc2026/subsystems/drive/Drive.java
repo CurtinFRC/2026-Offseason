@@ -78,7 +78,7 @@ public class Drive extends SubsystemBase {
           new TrapezoidProfile.Constraints(
               getMaxAngularSpeedRadPerSec(), MAX_ANGULAR_ACCELERATION));
 
-  public static final double POSITION_KP = 5;
+  public static final double POSITION_KP = 4;
   public static final double POSITION_KI = 0;
   private static final double POSITION_KD = 0.0;
   private static final double POSITION_PID_TOLERANCE = 0.1;
