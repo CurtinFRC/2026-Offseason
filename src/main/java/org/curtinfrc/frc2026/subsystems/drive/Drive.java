@@ -113,8 +113,16 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  /**
+   * True only while {@link #alignToHub()} is running. Without this, the two profiled controllers
+   * report atGoal() from their stale (or never-calculated) state, so readyToShoot reads true even
+   * when nothing is aiming the robot.
+   */
+  private boolean aligning = false;
+
   public final Trigger readyToShoot =
-      new Trigger(() -> rotationPIDController.atGoal() && positionPIDController.atGoal());
+      new Trigger(
+          () -> aligning && rotationPIDController.atGoal() && positionPIDController.atGoal());
 
   public Drive(
       GyroIO gyroIO,
