@@ -17,6 +17,12 @@ public class Autos {
   private static final double FEED_VOLTS = 6;
   private static final double SHOOT_SECONDS = 4;
 
+  /** Aim-settling time before the shooter and indexer start. */
+  private static final double ALIGN_SECONDS = 1;
+
+  /** Delay after the feed starts before the intake arm pushes. */
+  private static final double PUSH_DELAY_SECONDS = 1;
+
   private final AutoFactory autoFactory;
   private final Drive drive;
   private final HopperIndexer hopperIndexer;
@@ -91,22 +97,29 @@ public class Autos {
   }
 
   /**
-   * Aims at the hub while spinning up the shooter, feeds once it is at speed, and times out after
-   * {@link #SHOOT_SECONDS}. Mirrors the teleop shoot binding in Robot.
+   * Aims at the hub for {@link #ALIGN_SECONDS}, then spins the shooter and indexer together, then
+   * pushes with the intake arm {@link #PUSH_DELAY_SECONDS} later. Aiming runs throughout. Times out
+   * after {@link #SHOOT_SECONDS}.
    */
   private Command shoot() {
     return Commands.parallel(
             // No drive::stop here: alignToHub already owns the drive, and a second drive
             // command in the same parallel throws at construction.
             drive.alignToHub(),
-            shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
-            // Feed commands are runEnd and never finish, so push must run alongside the
-            // feed (andThen after it would never be reached).
-            Commands.waitUntil(shooter.readyToShoot)
+            // Fixed timing rather than waiting on shooter.readyToShoot: that trigger compares
+            // against the shooter's target velocity, which is 0 while idle, so it reads true
+            // at rest and gates nothing.
+            Commands.waitSeconds(ALIGN_SECONDS)
                 .andThen(
+                    // Feed commands are runEnd and never finish, so push must run alongside the
+                    // feed (andThen after it would never be reached).
                     Commands.parallel(
-                        hopperIndexer.setAllRollerVoltage(FEED_VOLTS), intakeArm.push())))
-        .withTimeout(SHOOT_SECONDS);
+                        shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
+                        hopperIndexer.setAllRollerVoltage(FEED_VOLTS),
+                        Commands.waitSeconds(PUSH_DELAY_SECONDS).andThen(intakeArm.push()))))
+        // Required: nothing in the parallel above ever finishes on its own, so without this
+        // the routine's sequence hangs here and the rollers feed forever.
+        .withTimeout(4);
   }
 
   /** Resets odometry to the trajectory's start pose, follows it, then stops. */

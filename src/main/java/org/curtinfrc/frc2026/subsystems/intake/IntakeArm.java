@@ -30,7 +30,7 @@ public class IntakeArm extends SubsystemBase {
             AlertType.kWarning);
   }
 
-  private static final double INTAKE_VELOCITY_RPS = 60;
+  private static final double INTAKE_VELOCITY_RPS = 100;
   private static final double IDLE_VELOCITY_RPS = 0;
   public static final double MIN_ARM_POSITION_ROTATIONS = -28.0;
   private static final double MAX_ARM_POSITION_ROTATIONS = -0.1;
