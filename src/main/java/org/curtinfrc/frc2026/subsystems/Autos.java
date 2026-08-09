@@ -76,11 +76,10 @@ public class Autos {
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                part1.cmd(),
+                Commands.deadline(part1.cmd(), intakeArm.intake()),
                 shoot(),
-                part2.cmd(),
-                shoot(),
-                intakeArm.intake()));
+                Commands.deadline(part2.cmd(), intakeArm.intake()),
+                shoot()));
     return routine;
   }
 
@@ -96,10 +95,11 @@ public class Autos {
             // default command can't run here. Without an active stop the modules keep chasing
             // the trajectory follower's last setpoint (logged: a 4.5 rad/s spin during shoot).
             drive.run(drive::stop),
+            drive.alignToHub(),
             shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
-            intakeArm.push(),
             Commands.waitUntil(shooter.readyToShoot)
-                .andThen(hopperIndexer.setAllRollerVoltage(FEED_VOLTS)))
+                .andThen(hopperIndexer.setAllRollerVoltage(FEED_VOLTS))
+                .andThen(intakeArm.push()))
         .withTimeout(SHOOT_SECONDS);
   }
 
