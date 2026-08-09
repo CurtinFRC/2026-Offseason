@@ -62,7 +62,11 @@ public class Autos {
 
     routine
         .active()
-        .onTrue(Commands.sequence(singleGreedy.resetOdometry(), singleGreedy.cmd(), shoot()));
+        .onTrue(
+            Commands.sequence(
+                singleGreedy.resetOdometry(),
+                Commands.deadline(singleGreedy.cmd(), intakeArm.intake()),
+                shoot()));
     return routine;
   }
 
@@ -71,6 +75,9 @@ public class Autos {
     AutoTrajectory part1 = routine.trajectory("DoubleGreedyPart1");
     AutoTrajectory part2 = routine.trajectory("DoubleGreedyPart2");
 
+    // The sequence holds the intakeArm requirement for its whole duration, so the default
+    // intake() command can't run during the trajectories -- deploy the intake explicitly or
+    // the arm never leaves stowed and push() during shoot() has nothing to do.
     routine
         .active()
         .onTrue(
@@ -84,22 +91,21 @@ public class Autos {
   }
 
   /**
-   * Spins up the shooter, feeds once it is at speed, and times out after {@link #SHOOT_SECONDS}.
-   * Shoots from wherever the preceding trajectory ended: the paths are drawn to end back-to-hub at
-   * shooting distance, so the drivetrain is intentionally left alone (no alignment lunge between
-   * split trajectories).
+   * Aims at the hub while spinning up the shooter, feeds once it is at speed, and times out after
+   * {@link #SHOOT_SECONDS}. Mirrors the teleop shoot binding in Robot.
    */
   private Command shoot() {
     return Commands.parallel(
-            // The surrounding sequence owns the drive for its whole duration, so the drive's
-            // default command can't run here. Without an active stop the modules keep chasing
-            // the trajectory follower's last setpoint (logged: a 4.5 rad/s spin during shoot).
-            drive.run(drive::stop),
+            // No drive::stop here: alignToHub already owns the drive, and a second drive
+            // command in the same parallel throws at construction.
             drive.alignToHub(),
             shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
+            // Feed commands are runEnd and never finish, so push must run alongside the
+            // feed (andThen after it would never be reached).
             Commands.waitUntil(shooter.readyToShoot)
-                .andThen(hopperIndexer.setAllRollerVoltage(FEED_VOLTS))
-                .andThen(intakeArm.push()))
+                .andThen(
+                    Commands.parallel(
+                        hopperIndexer.setAllRollerVoltage(FEED_VOLTS), intakeArm.push())))
         .withTimeout(SHOOT_SECONDS);
   }
 
