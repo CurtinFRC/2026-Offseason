@@ -199,7 +199,7 @@ public class Robot extends LoggedRobot {
         .whileTrue(
             Commands.parallel(
                 drive.alignToHub(),
-                shooter.setAngularVelocity(30),
+                shooter.setAngularVelocity(32.5),
                 Commands.waitUntil(shooter.readyToShoot)
                     .andThen(hopperIndexer.setAllRollerVoltage(6))))
         .onFalse(intakeArm.intake());
@@ -213,7 +213,7 @@ public class Robot extends LoggedRobot {
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
 
-    autos = new Autos(autoFactory, drive, hopperIndexer, shooter);
+    autos = new Autos(autoFactory, drive, hopperIndexer, shooter, intakeArm);
 
     autoChooser = new AutoChooser();
 

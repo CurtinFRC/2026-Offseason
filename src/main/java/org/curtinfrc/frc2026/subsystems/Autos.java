@@ -7,11 +7,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.hopperindexer.HopperIndexer;
+import org.curtinfrc.frc2026.subsystems.intake.IntakeArm;
 import org.curtinfrc.frc2026.subsystems.shooter.Shooter;
 
 public class Autos {
   /** Matches the teleop shoot binding in Robot. */
-  private static final double SHOOTER_SPEED_RPS = 30;
+  private static final double SHOOTER_SPEED_RPS = 32.5;
 
   private static final double FEED_VOLTS = 6;
   private static final double SHOOT_SECONDS = 4;
@@ -20,12 +21,19 @@ public class Autos {
   private final Drive drive;
   private final HopperIndexer hopperIndexer;
   private final Shooter shooter;
+  private final IntakeArm intakeArm;
 
-  public Autos(AutoFactory autoFactory, Drive drive, HopperIndexer hopperIndexer, Shooter shooter) {
+  public Autos(
+      AutoFactory autoFactory,
+      Drive drive,
+      HopperIndexer hopperIndexer,
+      Shooter shooter,
+      IntakeArm intakeArm) {
     this.autoFactory = autoFactory;
     this.drive = drive;
     this.hopperIndexer = hopperIndexer;
     this.shooter = shooter;
+    this.intakeArm = intakeArm;
   }
 
   public Command singleGreedy() {
@@ -66,7 +74,13 @@ public class Autos {
     routine
         .active()
         .onTrue(
-            Commands.sequence(part1.resetOdometry(), part1.cmd(), shoot(), part2.cmd(), shoot()));
+            Commands.sequence(
+                part1.resetOdometry(),
+                part1.cmd(),
+                shoot(),
+                part2.cmd(),
+                shoot(),
+                intakeArm.intake()));
     return routine;
   }
 
@@ -83,6 +97,7 @@ public class Autos {
             // the trajectory follower's last setpoint (logged: a 4.5 rad/s spin during shoot).
             drive.run(drive::stop),
             shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
+            intakeArm.push(),
             Commands.waitUntil(shooter.readyToShoot)
                 .andThen(hopperIndexer.setAllRollerVoltage(FEED_VOLTS)))
         .withTimeout(SHOOT_SECONDS);
