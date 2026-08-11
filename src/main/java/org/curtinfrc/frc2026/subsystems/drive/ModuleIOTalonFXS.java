@@ -41,6 +41,15 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFXS implements ModuleIO {
+  // Current limits. Kept in sync with ModuleIOTalonFX -- see the comment there for why these live
+  // here rather than in the generated TunerConstants.
+  private static final double DRIVE_STATOR_CURRENT_LIMIT = 120.0; // traction/slip ceiling
+  private static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60.0; // burst allowance
+  private static final double DRIVE_SUPPLY_LOWER_LIMIT = 40.0; // sustained draw, matches breaker
+  private static final double DRIVE_SUPPLY_LOWER_TIME = 1.0; // seconds of burst before lowering
+  private static final double TURN_STATOR_CURRENT_LIMIT = 60.0;
+  private static final double TURN_SUPPLY_CURRENT_LIMIT = 30.0;
+
   // Hardware objects
   private final TalonFXS driveTalon;
   private final TalonFXS turnTalon;
@@ -95,8 +104,12 @@ public class ModuleIOTalonFXS implements ModuleIO {
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.ExternalFeedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
-    driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
+    driveConfig.CurrentLimits.StatorCurrentLimit = DRIVE_STATOR_CURRENT_LIMIT;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    driveConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_SUPPLY_CURRENT_LIMIT;
+    driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    driveConfig.CurrentLimits.SupplyCurrentLowerLimit = DRIVE_SUPPLY_LOWER_LIMIT;
+    driveConfig.CurrentLimits.SupplyCurrentLowerTime = DRIVE_SUPPLY_LOWER_TIME;
     driveConfig.MotorOutput.Inverted =
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
@@ -106,6 +119,12 @@ public class ModuleIOTalonFXS implements ModuleIO {
 
     // Configure turn motor
     var turnConfig = new TalonFXSConfiguration();
+    // Set explicitly: this config is built fresh rather than seeded from
+    // constants.SteerMotorInitialConfigs, so TunerConstants' steer limits never reach the motor.
+    turnConfig.CurrentLimits.StatorCurrentLimit = TURN_STATOR_CURRENT_LIMIT;
+    turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    turnConfig.CurrentLimits.SupplyCurrentLimit = TURN_SUPPLY_CURRENT_LIMIT;
+    turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnConfig.Commutation.MotorArrangement =
         switch (constants.SteerMotorType) {
           case TalonFXS_Minion_JST -> MotorArrangementValue.Minion_JST;

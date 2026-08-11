@@ -1,0 +1,99 @@
+{
+ "name":"testAuto1",
+ "version":2,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{},
+  "poses":{
+   "trenchRight":{
+    "x":{
+     "exp":"4.127 m",
+     "val":4.127
+    },
+    "y":{
+     "exp":"0.694 m",
+     "val":0.694
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
+    }
+   }
+  }
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"229.2 mm",
+    "val":0.2292
+   },
+   "y":{
+    "exp":"229.2 mm",
+    "val":0.2292
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-229.2 mm",
+    "val":-0.2292
+   },
+   "y":{
+    "exp":"229.2 mm",
+    "val":0.2292
+   }
+  },
+  "mass":{
+   "exp":"50 kg",
+   "val":50.0
+  },
+  "inertia":{
+   "exp":"2.445 kg m ^ 2",
+   "val":2.445
+  },
+  "gearing":{
+   "exp":"7.03",
+   "val":7.03
+  },
+  "radius":{
+   "exp":"2 in",
+   "val":0.0508
+  },
+  "vmax":{
+   "exp":"4000 RPM",
+   "val":418.87902047863906
+  },
+  "tmax":{
+   "exp":"0.8 N * m",
+   "val":0.8
+  },
+  "cof":{
+   "exp":"1.4",
+   "val":1.4
+  },
+  "bumper":{
+   "front":{
+    "exp":"372 mm",
+    "val":0.372
+   },
+   "side":{
+    "exp":"372 mm",
+    "val":0.372
+   },
+   "back":{
+    "exp":"372 mm",
+    "val":0.372
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[],
+ "codegen":{
+  "root":null,
+  "genVars":true,
+  "genTrajData":true,
+  "useChoreoLib":true
+ }
+}

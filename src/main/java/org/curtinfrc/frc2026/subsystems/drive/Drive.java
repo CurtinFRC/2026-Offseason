@@ -9,12 +9,14 @@ package org.curtinfrc.frc2026.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import choreo.trajectory.SwerveSample;
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -76,7 +78,7 @@ public class Drive extends SubsystemBase {
           new TrapezoidProfile.Constraints(
               getMaxAngularSpeedRadPerSec(), MAX_ANGULAR_ACCELERATION));
 
-  public static final double POSITION_KP = 5;
+  public static final double POSITION_KP = 4;
   public static final double POSITION_KI = 0;
   private static final double POSITION_KD = 0.0;
   private static final double POSITION_PID_TOLERANCE = 0.1;
@@ -95,6 +97,9 @@ public class Drive extends SubsystemBase {
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+  private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
+  private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
+  private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
@@ -108,8 +113,16 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  /**
+   * True only while {@link #alignToHub()} is running. Without this, the two profiled controllers
+   * report atGoal() from their stale (or never-calculated) state, so readyToShoot reads true even
+   * when nothing is aiming the robot.
+   */
+  private boolean aligning = false;
+
   public final Trigger readyToShoot =
-      new Trigger(() -> rotationPIDController.atGoal() && positionPIDController.atGoal());
+      new Trigger(
+          () -> aligning && rotationPIDController.atGoal() && positionPIDController.atGoal());
 
   public Drive(
       GyroIO gyroIO,
@@ -122,6 +135,8 @@ public class Drive extends SubsystemBase {
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
     rotationPIDController.setTolerance(ROTATION_PID_TOLERANCE);
     positionPIDController.setTolerance(POSITION_PID_TOLERANCE);
@@ -143,6 +158,18 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+  }
+
+  public void followTrajectory(SwerveSample sample) {
+    Pose2d pose = getPose();
+
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega
+                + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
+    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, pose.getRotation()));
   }
 
   @Override
@@ -324,8 +351,9 @@ public class Drive extends SubsystemBase {
   }
 
   public Command alignToHub() {
-    return run(
+    return runEnd(
         () -> {
+          aligning = true;
           Translation2d hubLocation =
               ChoreoAllianceFlipUtil.shouldFlip()
                   ? ChoreoAllianceFlipUtil.flip(FieldConstants.Hub.topCenterPoint.toTranslation2d())
@@ -342,19 +370,25 @@ public class Drive extends SubsystemBase {
                   angleToLocation(() -> hubLocation));
 
           ChassisSpeeds speeds =
-              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
+              new ChassisSpeeds(-linearVelocity.getX(), -linearVelocity.getY(), -angularVelocity);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
           runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds, isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation()));
-        });
+        },
+        () -> aligning = false);
   }
 
   public Rotation2d angleToLocation(Supplier<Translation2d> locationSupplier) {
     Pose2d robotPose = getPose();
-    Rotation2d targetAngle = locationSupplier.get().minus(robotPose.getTranslation()).getAngle();
+    Rotation2d targetAngle =
+        locationSupplier
+            .get()
+            .minus(robotPose.getTranslation())
+            .getAngle()
+            .plus(Rotation2d.k180deg);
     Logger.recordOutput("Drive/TargetAngle", targetAngle);
     Logger.recordOutput("Drive/CurrentAngle", (robotPose.getRotation()));
     return targetAngle;
@@ -367,7 +401,7 @@ public class Drive extends SubsystemBase {
     if (Math.abs(rotationPIDController.getPositionError()) < 0.05) {
       return 0;
     }
-    return angularVelocity;
+    return -angularVelocity;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

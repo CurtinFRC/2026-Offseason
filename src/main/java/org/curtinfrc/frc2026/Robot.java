@@ -9,12 +9,15 @@ package org.curtinfrc.frc2026;
 
 import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 
+import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import org.curtinfrc.frc2026.subsystems.Autos;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -41,6 +44,7 @@ import org.curtinfrc.frc2026.subsystems.vision.Vision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIO;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.curtinfrc.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.curtinfrc.frc2026.util.AutoChooser;
 import org.curtinfrc.frc2026.util.GameState;
 import org.curtinfrc.frc2026.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -62,6 +66,9 @@ public class Robot extends LoggedRobot {
   private Shooter shooter;
   private IntakeArm intakeArm;
   private HopperIndexer hopperIndexer;
+  private final AutoFactory autoFactory;
+  private final AutoChooser autoChooser;
+  private final Autos autos;
 
   private final CommandXboxController controller = new CommandXboxController(0);
   private final Alert controllerDisconnected =
@@ -179,25 +186,47 @@ public class Robot extends LoggedRobot {
         drive.joystickDrive(
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> -controller.getRightX()));
 
     shooter.setDefaultCommand(shooter.setVoltage(0));
     intakeArm.setDefaultCommand(intakeArm.intake());
 
+    // KEEP AS ONE BINDING. Two whileTrue bindings on the same button both requiring the shooter
+    // cancel each other, which kills alignToHub the cycle it starts (the "doesn't aim" bug).
+    // Likewise, a separate readyToShoot->feed trigger conflicts with the rollers used here.
     controller
         .rightBumper()
-        .whileTrue(Commands.parallel(shooter.setAngularVelocity(30), drive.alignToHub()));
+        .whileTrue(
+            Commands.parallel(
+                drive.alignToHub(),
+                shooter.setAngularVelocity(32.5),
+                Commands.waitUntil(shooter.readyToShoot)
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))))
+        .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
     controller.leftBumper().whileTrue(intakeArm.push());
     controller
         .leftTrigger()
         .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
-    shooter
-        .readyToShoot
-        .and(drive.readyToShoot)
-        .onTrue(hopperIndexer.setAllRollerVoltage(6))
-        .onFalse(hopperIndexer.stopAll());
+
+    autoFactory =
+        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
+
+    autos = new Autos(autoFactory, drive, hopperIndexer, shooter, intakeArm);
+
+    autoChooser = new AutoChooser();
+
+    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
+    autoChooser.addCmd("Single Greedy", autos::singleGreedy);
+    autoChooser.addCmd("Double Greedy Test", autos::doubleGreedy1Test);
+    autoChooser.addCmd("Double Greedy Part 1", autos::doubleGreedy1);
+    autoChooser.addCmd("Double Greedy Part 2", autos::doubleGreedy2);
+
+    autoChooser.addRoutine("Single Greedy Routine", autos::singleGreedyRoutine);
+    autoChooser.addRoutine("Double Greedy Routine", autos::doubleGreedyRoutine);
+
+    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
 
   /** This function is called periodically during all modes. */
