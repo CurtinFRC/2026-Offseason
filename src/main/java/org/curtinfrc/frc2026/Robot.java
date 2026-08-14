@@ -217,14 +217,12 @@ public class Robot extends LoggedRobot {
 
     autoChooser = new AutoChooser();
 
-    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
-    autoChooser.addCmd("Single Greedy", autos::singleGreedy);
-    autoChooser.addCmd("Double Greedy Test", autos::doubleGreedy1Test);
-    autoChooser.addCmd("Double Greedy Part 1", autos::doubleGreedy1);
-    autoChooser.addCmd("Double Greedy Part 2", autos::doubleGreedy2);
+    autoChooser.addCmd("OH NO, the shooter/intake stopped working", autos::noShooterNoIntake);
 
-    autoChooser.addRoutine("Single Greedy Routine", autos::singleGreedyRoutine);
-    autoChooser.addRoutine("Double Greedy Routine", autos::doubleGreedyRoutine);
+    autoChooser.addRoutine("Single Andre (start right)", autos::singleGreedyRoutineRight);
+    autoChooser.addRoutine("Double Andre (start right)", autos::doubleGreedyRoutineRight);
+    autoChooser.addRoutine("Single Andre (start left)", autos::singleGreedyRoutineLeft);
+    autoChooser.addRoutine("Double Andre (start left)", autos::doubleGreedyRoutineLeft);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }

@@ -62,24 +62,68 @@ public class Autos {
     return trajectoryAuto("DoubleGreedyPart1_Test");
   }
 
-  public AutoRoutine singleGreedyRoutine() {
-    AutoRoutine routine = autoFactory.newRoutine("SingleGreedyRoutine");
-    AutoTrajectory singleGreedy = routine.trajectory("SingleGreedy");
+  public Command noShooterNoIntake() {
+    return trajectoryAuto("NoShooterNoIntake");
+  }
 
+  public AutoRoutine singleGreedyRoutineRight() {
+    AutoRoutine routine = autoFactory.newRoutine("Right Single Greedy");
+    AutoTrajectory part1 = routine.trajectory("DoubleGreedyPart1");
+
+    // The sequence holds the intakeArm requirement for its whole duration, so the default
+    // intake() command can't run during the trajectories -- deploy the intake explicitly or
+    // the arm never leaves stowed and push() during shoot() has nothing to do.
     routine
         .active()
         .onTrue(
             Commands.sequence(
-                singleGreedy.resetOdometry(),
-                Commands.deadline(singleGreedy.cmd(), intakeArm.intake()),
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intake()),
                 shoot()));
     return routine;
   }
 
-  public AutoRoutine doubleGreedyRoutine() {
-    AutoRoutine routine = autoFactory.newRoutine("DoubleGreedyRoutine");
+  public AutoRoutine singleGreedyRoutineLeft() {
+    AutoRoutine routine = autoFactory.newRoutine("Left Single Greedy");
+    AutoTrajectory part1 = routine.trajectory("LDoubleGreedyPart1");
+
+    // The sequence holds the intakeArm requirement for its whole duration, so the default
+    // intake() command can't run during the trajectories -- deploy the intake explicitly or
+    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                shoot()));
+    return routine;
+  }
+
+  public AutoRoutine doubleGreedyRoutineRight() {
+    AutoRoutine routine = autoFactory.newRoutine("Right Double Greedy");
     AutoTrajectory part1 = routine.trajectory("DoubleGreedyPart1");
     AutoTrajectory part2 = routine.trajectory("DoubleGreedyPart2");
+
+    // The sequence holds the intakeArm requirement for its whole duration, so the default
+    // intake() command can't run during the trajectories -- deploy the intake explicitly or
+    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                shoot(),
+                Commands.deadline(part2.cmd(), intakeArm.intake()),
+                shoot()));
+    return routine;
+  }
+
+  public AutoRoutine doubleGreedyRoutineLeft() {
+    AutoRoutine routine = autoFactory.newRoutine("Left Double Greedy");
+    AutoTrajectory part1 = routine.trajectory("LDoubleGreedyPart1");
+    AutoTrajectory part2 = routine.trajectory("LDoubleGreedyPart2");
 
     // The sequence holds the intakeArm requirement for its whole duration, so the default
     // intake() command can't run during the trajectories -- deploy the intake explicitly or
@@ -130,23 +174,3 @@ public class Autos {
         .andThen(drive.runOnce(drive::stop));
   }
 }
-
-// ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣤⣤⣤⣤⣤⣤⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠛⠉⠙⠛⠛⠛⠛⠻⢿⣿⣷⣤⡀⠀⠀⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⠋⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠈⢻⣿⣿⡄⠀⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⣸⣿⡏⠀⠀⠀⣠⣶⣾⣿⣿⣿⠿⠿⠿⢿⣿⣿⣿⣄⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⣿⣿⠁⠀⠀⢰⣿⣿⣯⠁⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣷⡄⠀
-// ⠀⠀⣀⣤⣴⣶⣶⣿⡟⠀⠀⠀⢸⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣷⠀
-// ⠀⢰⣿⡟⠋⠉⣹⣿⡇⠀⠀⠀⠘⣿⣿⣿⣿⣷⣦⣤⣤⣤⣶⣶⣶⣶⣿⣿⣿⠀
-// ⠀⢸⣿⡇⠀⠀⣿⣿⡇⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠀
-// ⠀⣸⣿⡇⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠉⠻⠿⣿⣿⣿⣿⡿⠿⠿⠛⢻⣿⡇⠀⠀
-// ⠀⣿⣿⠁⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣧⠀⠀
-// ⠀⣿⣿⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀
-// ⠀⣿⣿⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀
-// ⠀⢿⣿⡆⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⠀
-// ⠀⠸⣿⣧⡀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠃⠀⠀
-// ⠀⠀⠛⢿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⣰⣿⣿⣷⣶⣶⣶⣶⠶⠀⢠⣿⣿⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⣿⣿⡇⠀⣽⣿⡏⠁⠀⠀⢸⣿⡇⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⣿⣿⡇⠀⢹⣿⡆⠀⠀⠀⣸⣿⠇⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⢿⣿⣦⣄⣀⣠⣴⣿⣿⠁⠀⠈⠻⣿⣿⣿⣿⡿⠏⠀⠀⠀⠀
-// ⠀⠀⠀⠀⠀⠀⠀⠈⠛⠻⠿⠿⠿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
