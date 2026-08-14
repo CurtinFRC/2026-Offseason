@@ -3,10 +3,12 @@ package org.curtinfrc.frc2026;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.simulation.SimHooks;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.util.function.Supplier;
 import org.curtinfrc.frc2026.subsystems.Autos;
 import org.curtinfrc.frc2026.subsystems.drive.Drive;
 import org.curtinfrc.frc2026.subsystems.drive.GyroIO;
@@ -65,23 +67,33 @@ public class AutosTest {
     }
   }
 
-  @Test
-  void doubleGreedyRoutineStarts() {
+  /** Schedules the routine and simulates a full auto period, failing if anything throws. */
+  private void assertRoutineRuns(Supplier<AutoRoutine> routine) {
     assertDoesNotThrow(
         () -> {
-          var cmd = autos.doubleGreedyRoutine().cmd();
+          var cmd = routine.get().cmd();
           CommandScheduler.getInstance().schedule(cmd);
           runFor(30.0);
         });
   }
 
   @Test
-  void singleGreedyRoutineStarts() {
-    assertDoesNotThrow(
-        () -> {
-          var cmd = autos.singleGreedyRoutine().cmd();
-          CommandScheduler.getInstance().schedule(cmd);
-          runFor(30.0);
-        });
+  void doubleGreedyRoutineRightStarts() {
+    assertRoutineRuns(autos::doubleGreedyRoutineRight);
+  }
+
+  @Test
+  void doubleGreedyRoutineLeftStarts() {
+    assertRoutineRuns(autos::doubleGreedyRoutineLeft);
+  }
+
+  @Test
+  void singleGreedyRoutineRightStarts() {
+    assertRoutineRuns(autos::singleGreedyRoutineRight);
+  }
+
+  @Test
+  void singleGreedyRoutineLeftStarts() {
+    assertRoutineRuns(autos::singleGreedyRoutineLeft);
   }
 }
