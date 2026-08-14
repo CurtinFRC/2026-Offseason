@@ -189,7 +189,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getRightX()));
 
     shooter.setDefaultCommand(shooter.setVoltage(0));
-    intakeArm.setDefaultCommand(intakeArm.intake());
+    RobotModeTriggers.teleop().whileTrue(intakeArm.intake());
+    RobotModeTriggers.autonomous().whileTrue(intakeArm.intakeAuto());
 
     // KEEP AS ONE BINDING. Two whileTrue bindings on the same button both requiring the shooter
     // cancel each other, which kills alignToHub the cycle it starts (the "doesn't aim" bug).
