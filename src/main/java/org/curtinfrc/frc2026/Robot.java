@@ -137,7 +137,10 @@ public class Robot extends LoggedRobot {
                 new IndexerRollerIOComp(
                     HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive, 40, 80),
                 new IndexerRollerIOComp(
-                    HopperIndexer.hopperIndexerRollersID, InvertedValue.CounterClockwise_Positive, 30, 50));
+                    HopperIndexer.hopperIndexerRollersID,
+                    InvertedValue.CounterClockwise_Positive,
+                    30,
+                    50));
       }
       case SIM -> {
         drive =
@@ -209,7 +212,12 @@ public class Robot extends LoggedRobot {
     controller.leftBumper().whileTrue(intakeArm.push());
     controller
         .leftTrigger()
-        .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+        .whileTrue(
+            Commands.parallel(
+                shooter.setAngularVelocity(32.5),
+                Commands.waitUntil(shooter.readyToShoot)
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))))
+        .onFalse(intakeArm.intake());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
