@@ -370,7 +370,7 @@ public class Drive extends SubsystemBase {
                   angleToLocation(() -> hubLocation));
 
           ChassisSpeeds speeds =
-              new ChassisSpeeds(-linearVelocity.getX(), -linearVelocity.getY(), -angularVelocity);
+              new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
