@@ -20,7 +20,7 @@ public class IndexerRollerIOSim extends IndexerRollerIOComp {
   private final Notifier simNotifier;
 
   public IndexerRollerIOSim(int motorID, InvertedValue invertedValue, double moiJKgMetresSquared) {
-    super(motorID, invertedValue);
+    super(motorID, invertedValue, 30, 60);
 
     motorSim = rollerMotor.getSimState();
     motorSim.setMotorType(MotorType.KrakenX60);

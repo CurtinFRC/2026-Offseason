@@ -28,7 +28,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Temperature> motorTemperature;
 
-  public IndexerRollerIOComp(int motorID, InvertedValue invertedValue) {
+  public IndexerRollerIOComp(int motorID, InvertedValue invertedValue, double supplyCurrentLimit, double statorCurrentLimit) {
     rollerMotor = new TalonFX(motorID);
     motorConfig =
         new TalonFXConfiguration()
@@ -37,7 +37,7 @@ public class IndexerRollerIOComp implements IndexerRollerIO {
                     .withNeutralMode(NeutralModeValue.Coast)
                     .withInverted(invertedValue))
             .withCurrentLimits(
-                new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withStatorCurrentLimit(60));
+                new CurrentLimitsConfigs().withSupplyCurrentLimit(supplyCurrentLimit).withStatorCurrentLimit(statorCurrentLimit));
 
     tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(motorConfig));
 
