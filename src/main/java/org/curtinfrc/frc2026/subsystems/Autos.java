@@ -100,6 +100,12 @@ public class Autos {
     return routine;
   }
 
+  public AutoRoutine shootTest() {
+    AutoRoutine routine = autoFactory.newRoutine("Shoot Test");
+    routine.active().onTrue(shoot());
+    return routine;
+  }
+
   public AutoRoutine doubleGreedyRoutineRight() {
     AutoRoutine routine = autoFactory.newRoutine("Right Double Greedy");
     AutoTrajectory part1 = routine.trajectory("DoubleGreedyPart1");
@@ -160,7 +166,11 @@ public class Autos {
                     Commands.parallel(
                         shooter.setAngularVelocity(SHOOTER_SPEED_RPS),
                         hopperIndexer.setAllRollerVoltage(FEED_VOLTS),
-                        Commands.waitSeconds(PUSH_DELAY_SECONDS).andThen(intakeArm.push()))))
+                        Commands.waitSeconds(1)
+                            .andThen(
+                                Commands.repeatingSequence(
+                                    intakeArm.push().withTimeout(0.5),
+                                    intakeArm.intakeAuto().withTimeout(0.5))))))
         // Required: nothing in the parallel above ever finishes on its own, so without this
         // the routine's sequence hangs here and the rollers feed forever.
         .withTimeout(4);
