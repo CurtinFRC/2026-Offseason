@@ -72,14 +72,14 @@ public class Autos {
 
     // The sequence holds the intakeArm requirement for its whole duration, so the default
     // intake() command can't run during the trajectories -- deploy the intake explicitly or
-    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    // the arm never leaves stowed and push() during shoot(4) has nothing to do.
     routine
         .active()
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
-                shoot()));
+                shoot(4)));
     return routine;
   }
 
@@ -89,20 +89,20 @@ public class Autos {
 
     // The sequence holds the intakeArm requirement for its whole duration, so the default
     // intake() command can't run during the trajectories -- deploy the intake explicitly or
-    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    // the arm never leaves stowed and push() during shoot(4) has nothing to do.
     routine
         .active()
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
-                shoot()));
+                shoot(4)));
     return routine;
   }
 
   public AutoRoutine shootTest() {
     AutoRoutine routine = autoFactory.newRoutine("Shoot Test");
-    routine.active().onTrue(shoot());
+    routine.active().onTrue(shoot(4));
     return routine;
   }
 
@@ -113,16 +113,16 @@ public class Autos {
 
     // The sequence holds the intakeArm requirement for its whole duration, so the default
     // intake() command can't run during the trajectories -- deploy the intake explicitly or
-    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    // the arm never leaves stowed and push() during shoot(4) has nothing to do.
     routine
         .active()
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
-                shoot(),
+                shoot(4),
                 Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
-                shoot()));
+                shoot(4)));
     return routine;
   }
 
@@ -133,20 +133,20 @@ public class Autos {
 
     // The sequence holds the intakeArm requirement for its whole duration, so the default
     // intake() command can't run during the trajectories -- deploy the intake explicitly or
-    // the arm never leaves stowed and push() during shoot() has nothing to do.
+    // the arm never leaves stowed and push() during shoot(4) has nothing to do.
     routine
         .active()
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
-                shoot(),
+                shoot(4),
                 Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
-                shoot()));
+                shoot(4)));
     return routine;
   }
 
-    public AutoRoutine doubleHalfRoutineRight() {
+  public AutoRoutine doubleHalfRoutineRight() {
     AutoRoutine routine = autoFactory.newRoutine("Right Double Half");
     AutoTrajectory part1 = routine.trajectory("DoubleHalfPart1");
     AutoTrajectory part2 = routine.trajectory("DoubleHalfPart2");
@@ -157,9 +157,26 @@ public class Autos {
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
-                shoot(),
+                shoot(4),
                 Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
-                shoot()));
+                shoot(4)));
+    return routine;
+  }
+
+  public AutoRoutine doubleTwoHalvesRoutine() {
+    AutoRoutine routine = autoFactory.newRoutine("Right Double Two Halves");
+    AutoTrajectory part1 = routine.trajectory("DoubleTwoHalvesPart1");
+    AutoTrajectory part2 = routine.trajectory("DoubleTwoHalvesPart2");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
+                shoot(4),
+                Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
+                shoot(4)));
     return routine;
   }
 
@@ -168,7 +185,7 @@ public class Autos {
    * pushes with the intake arm {@link #PUSH_DELAY_SECONDS} later. Aiming runs throughout. Times out
    * after {@link #SHOOT_SECONDS}.
    */
-  private Command shoot() {
+  private Command shoot(double timeout) {
     return Commands.parallel(
             // No drive::stop here: alignToHub already owns the drive, and a second drive
             // command in the same parallel throws at construction.
@@ -190,7 +207,7 @@ public class Autos {
                                     intakeArm.intakeAuto().withTimeout(0.5))))))
         // Required: nothing in the parallel above ever finishes on its own, so without this
         // the routine's sequence hangs here and the rollers feed forever.
-        .withTimeout(4);
+        .withTimeout(timeout);
   }
 
   /** Resets odometry to the trajectory's start pose, follows it, then stops. */

@@ -232,7 +232,10 @@ public class Robot extends LoggedRobot {
     autoChooser.addRoutine("Double Andre (start right)", autos::doubleGreedyRoutineRight);
     autoChooser.addRoutine("Single Andre (start left)", autos::singleGreedyRoutineLeft);
     autoChooser.addRoutine("Double Andre (start left)", autos::doubleGreedyRoutineLeft);
+
     autoChooser.addRoutine("Double Kingsley (start right)", autos::doubleHalfRoutineRight);
+
+    autoChooser.addRoutine("Double Subesh (start right)", autos::doubleTwoHalvesRoutine);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }
