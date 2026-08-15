@@ -371,9 +371,7 @@ public class Drive extends SubsystemBase {
 
           ChassisSpeeds speeds =
               new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), -angularVelocity);
-          runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds, getRotation()));
+          runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getRotation()));
         },
         () -> aligning = false);
   }
