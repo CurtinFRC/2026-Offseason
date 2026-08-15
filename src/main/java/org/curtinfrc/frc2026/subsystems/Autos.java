@@ -146,16 +146,19 @@ public class Autos {
     return routine;
   }
 
-    public AutoRoutine singleKeepRightRoutine() {
-    AutoRoutine routine = autoFactory.newRoutine("Single, Right Half Only");
-    AutoTrajectory singleKeepRightTrajectory = routine.trajectory("SingleKeepRight");
+    public AutoRoutine doubleHalfRoutineRight() {
+    AutoRoutine routine = autoFactory.newRoutine("Right Double Half");
+    AutoTrajectory part1 = routine.trajectory("DoubleHalfPart1");
+    AutoTrajectory part2 = routine.trajectory("DoubleHalfPart2");
 
     routine
         .active()
         .onTrue(
             Commands.sequence(
-                singleKeepRightTrajectory.resetOdometry(),
-                Commands.deadline(singleKeepRightTrajectory.cmd(), intakeArm.intakeAuto()),
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
+                shoot(),
+                Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
                 shoot()));
     return routine;
   }
