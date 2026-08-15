@@ -163,6 +163,23 @@ public class Autos {
     return routine;
   }
 
+  public AutoRoutine doubleHalfRoutineLeft() {
+    AutoRoutine routine = autoFactory.newRoutine("Left Double Half");
+    AutoTrajectory part1 = routine.trajectory("LDoubleHalfPart1");
+    AutoTrajectory part2 = routine.trajectory("LDoubleHalfPart2");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
+                shoot(4),
+                Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
+                shoot(4)));
+    return routine;
+  }
+
   public AutoRoutine doubleTwoHalvesRoutine() {
     AutoRoutine routine = autoFactory.newRoutine("Right Double Two Halves");
     AutoTrajectory part1 = routine.trajectory("DoubleTwoHalvesPart1");
