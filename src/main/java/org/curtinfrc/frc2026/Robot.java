@@ -209,7 +209,7 @@ public class Robot extends LoggedRobot {
         .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
-    controller.leftBumper().whileTrue(intakeArm.push());
+    controller.leftBumper().whileTrue(intakeArm.push()).onFalse(intakeArm.intake());
     controller
         .leftTrigger()
         .whileTrue(
