@@ -78,7 +78,7 @@ public class Autos {
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
                 shoot()));
     return routine;
   }
@@ -95,7 +95,7 @@ public class Autos {
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
                 shoot()));
     return routine;
   }
@@ -119,9 +119,9 @@ public class Autos {
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
                 shoot(),
-                Commands.deadline(part2.cmd(), intakeArm.intake()),
+                Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
                 shoot()));
     return routine;
   }
@@ -139,9 +139,23 @@ public class Autos {
         .onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                Commands.deadline(part1.cmd(), intakeArm.intake()),
+                Commands.deadline(part1.cmd(), intakeArm.intakeAuto()),
                 shoot(),
-                Commands.deadline(part2.cmd(), intakeArm.intake()),
+                Commands.deadline(part2.cmd(), intakeArm.intakeAuto()),
+                shoot()));
+    return routine;
+  }
+
+    public AutoRoutine singleKeepRightRoutine() {
+    AutoRoutine routine = autoFactory.newRoutine("Single, Right Half Only");
+    AutoTrajectory singleKeepRightTrajectory = routine.trajectory("SingleKeepRight");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                singleKeepRightTrajectory.resetOdometry(),
+                Commands.deadline(singleKeepRightTrajectory.cmd(), intakeArm.intakeAuto()),
                 shoot()));
     return routine;
   }
