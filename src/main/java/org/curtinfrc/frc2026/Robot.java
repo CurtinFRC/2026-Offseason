@@ -11,10 +11,7 @@ import static org.curtinfrc.frc2026.subsystems.vision.Vision.cameraConfigs;
 
 import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.signals.InvertedValue;
-
-import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -116,7 +113,6 @@ public class Robot extends LoggedRobot {
     }
 
     // Start AdvantageKit logger
-    DataLogManager.start();
     Logger.start();
 
     switch (Constants.getMode()) {
