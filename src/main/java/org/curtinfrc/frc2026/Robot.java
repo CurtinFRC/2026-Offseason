@@ -228,7 +228,7 @@ public class Robot extends LoggedRobot {
 
     autoChooser = new AutoChooser();
 
-    autoChooser.addCmd("OH NO, the shooter/intake stopped working", autos::noShooterNoIntake);
+    autoChooser.addCmd("Sean (disrupt)", autos::disrupt);
 
     autoChooser.addRoutine("Single Andre (start right)", autos::singleGreedyRoutineRight);
     autoChooser.addRoutine("Double Andre (start right)", autos::doubleGreedyRoutineRight);

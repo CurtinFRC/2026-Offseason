@@ -62,8 +62,8 @@ public class Autos {
     return trajectoryAuto("DoubleGreedyPart1_Test");
   }
 
-  public Command noShooterNoIntake() {
-    return trajectoryAuto("NoShooterNoIntake");
+  public Command disrupt() {
+    return trajectoryAuto("Disrupt");
   }
 
   public AutoRoutine singleGreedyRoutineRight() {
