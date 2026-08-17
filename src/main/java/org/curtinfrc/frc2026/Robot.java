@@ -13,6 +13,7 @@ import choreo.auto.AutoFactory;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -113,6 +114,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Start AdvantageKit logger
+    DataLogManager.start();
     Logger.start();
 
     switch (Constants.getMode()) {
@@ -135,9 +137,12 @@ public class Robot extends LoggedRobot {
         hopperIndexer =
             new HopperIndexer(
                 new IndexerRollerIOComp(
-                    HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive),
+                    HopperIndexer.indexerRollerID, InvertedValue.CounterClockwise_Positive, 40, 80),
                 new IndexerRollerIOComp(
-                    HopperIndexer.hopperIndexerRollersID, InvertedValue.CounterClockwise_Positive));
+                    HopperIndexer.hopperIndexerRollersID,
+                    InvertedValue.CounterClockwise_Positive,
+                    30,
+                    50));
       }
       case SIM -> {
         drive =
@@ -189,7 +194,8 @@ public class Robot extends LoggedRobot {
             () -> -controller.getRightX()));
 
     shooter.setDefaultCommand(shooter.setVoltage(0));
-    intakeArm.setDefaultCommand(intakeArm.intake());
+    RobotModeTriggers.teleop().whileTrue(intakeArm.intake());
+    RobotModeTriggers.autonomous().whileTrue(intakeArm.intakeAuto());
 
     // KEEP AS ONE BINDING. Two whileTrue bindings on the same button both requiring the shooter
     // cancel each other, which kills alignToHub the cycle it starts (the "doesn't aim" bug).
@@ -205,10 +211,15 @@ public class Robot extends LoggedRobot {
         .onFalse(intakeArm.intake());
 
     controller.rightTrigger().whileTrue(intakeArm.outake());
-    controller.leftBumper().whileTrue(intakeArm.push());
+    controller.leftBumper().whileTrue(intakeArm.push()).onFalse(intakeArm.intake());
     controller
         .leftTrigger()
-        .whileTrue(drive.TrenchAlign(() -> -controller.getLeftY(), () -> -controller.getLeftX()));
+        .whileTrue(
+            Commands.parallel(
+                shooter.setAngularVelocity(32.5),
+                Commands.waitUntil(shooter.readyToShoot)
+                    .andThen(hopperIndexer.setAllRollerVoltage(6))))
+        .onFalse(intakeArm.intake());
 
     autoFactory =
         new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
@@ -217,14 +228,17 @@ public class Robot extends LoggedRobot {
 
     autoChooser = new AutoChooser();
 
-    autoChooser.addCmd("Test Auto Safe", autos::testAutoSafe);
-    autoChooser.addCmd("Single Greedy", autos::singleGreedy);
-    autoChooser.addCmd("Double Greedy Test", autos::doubleGreedy1Test);
-    autoChooser.addCmd("Double Greedy Part 1", autos::doubleGreedy1);
-    autoChooser.addCmd("Double Greedy Part 2", autos::doubleGreedy2);
+    autoChooser.addCmd("Sean (disrupt)", autos::disrupt);
 
-    autoChooser.addRoutine("Single Greedy Routine", autos::singleGreedyRoutine);
-    autoChooser.addRoutine("Double Greedy Routine", autos::doubleGreedyRoutine);
+    autoChooser.addRoutine("Single Andre (start right)", autos::singleGreedyRoutineRight);
+    autoChooser.addRoutine("Double Andre (start right)", autos::doubleGreedyRoutineRight);
+    autoChooser.addRoutine("Single Andre (start left)", autos::singleGreedyRoutineLeft);
+    autoChooser.addRoutine("Double Andre (start left)", autos::doubleGreedyRoutineLeft);
+
+    autoChooser.addRoutine("Double Kingsley (start right)", autos::doubleHalfRoutineRight);
+    autoChooser.addRoutine("Double Kingsley (start left)", autos::doubleHalfRoutineLeft);
+
+    autoChooser.addRoutine("Double Subesh (start right)", autos::doubleTwoHalvesRoutine);
 
     RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
   }

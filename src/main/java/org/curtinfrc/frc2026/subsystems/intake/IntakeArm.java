@@ -62,6 +62,14 @@ public class IntakeArm extends SubsystemBase {
         });
   }
 
+  public Command intakeAuto() {
+    return run(
+        () -> {
+          armIO.setArmPosition(MIN_ARM_POSITION_ROTATIONS);
+          intakeIO.setRollerVoltage(12);
+        });
+  }
+
   public Command outake() {
     return run(
         () -> {
